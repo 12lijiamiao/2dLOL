@@ -26,9 +26,15 @@ class FireBall extends AcGameObject
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    is_attack(tx ,ty , tr)
+    is_attack(player,tx ,ty , tr)
     {
         let distance = this.get_distance(tx,ty,this.x,this.y);
+        if(!player.is_me && distance < player.radius * 2 )
+        {
+            player.cur_skill = "flash";
+            player.is_flash = true;
+            player.flash_angle = this.angle + Math.PI / 2;
+        }
         if(distance < tr +this.radius)
             return true;
         return false;
@@ -47,7 +53,7 @@ class FireBall extends AcGameObject
         for(let i = 0 ; i < this.playground.plays.length ; i++)
         {
             let player = this.playground.plays[i];
-            if(player !== this.player && this.is_attack(player.x , player.y , player.radius))
+            if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius))
             {
                 this.attack(player);
             }

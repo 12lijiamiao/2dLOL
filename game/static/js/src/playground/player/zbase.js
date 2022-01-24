@@ -19,7 +19,10 @@ class Player extends AcGameObject
         this.move_length=0;
         this.esp = 0.1;
         this.cur_skill = null;
+        this.flash_angle = 0;
+        this.is_flash = false;
         this.spend_time=0;
+        this.live = true;
 
         this.f = 0.9;
 
@@ -43,9 +46,15 @@ class Player extends AcGameObject
         let outer = this;
 
         $(window).keydown(function(e){
+            if(!outer.live)
+                return false;
             if(e.which === 81)
                 outer.cur_skill = "fireball";
-                return false;
+            else if(e.which === 82)
+                outer.all_shoot_fireball();
+            else if(e.which === 70)
+                outer.cur_skill = "flash";
+
         });
 
         this.playground.GameMap.$canvas.on("contextmenu",function(){
@@ -53,6 +62,8 @@ class Player extends AcGameObject
         });
 
         this.playground.GameMap.$canvas.mousedown(function(e){
+            if(!outer.live)
+                return false;
             if(e.which === 3 )
                 outer.move_to(e.clientX,e.clientY);
             else if (e.which === 1)
@@ -61,6 +72,11 @@ class Player extends AcGameObject
                 {
                     outer.shoot_fireball(e.clientX,e.clientY);
                     outer.cur_skill =null;
+                }
+                else if(outer.cur_skill === "flash")
+                {
+                    outer.flash_angle = Math.atan2(e.clientY - outer.y ,e.clientX - outer.x);
+                    outer.is_flash = true;
                 }
             }
         });
@@ -83,6 +99,7 @@ class Player extends AcGameObject
         if(this.radius < this.esp)
         {
             this.destory();
+            this.live = false;
             return false;
         }
 
@@ -100,6 +117,25 @@ class Player extends AcGameObject
         let move_length = this.playground.height*0.8;
         let radius = this.playground.height* 0.01;
         new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
+    }
+
+    all_shoot_fireball()
+    {
+        for(let i = 0 ; i < 10; i++)
+        {
+            let angle = (Math.PI * 2)/10*i;
+            let speed = this.playground.height*0.5;
+            let move_length = this.playground.height*0.8;
+            let radius = this.playground.height* 0.01;
+            new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
+        }
+    }
+
+    flash(angle)
+    {
+        let distance = this.playground.height * 0.1;
+        this.x += distance * Math.cos(angle);
+        this.y += distance * Math.sin(angle);
     }
 
     get_distance(x1,y1,x2,y2)
@@ -123,20 +159,32 @@ class Player extends AcGameObject
     {
         this.spend_time += this.timedate / 1000;
 
-        if(!this.is_me && this.spend_time > 4 && Math.random() < 1 / 150.0)
+        if(!this.is_me && this.spend_time > 4 )
         {
-            let player = this.playground.plays[Math.floor(Math.random() * this.playground.plays.length)];
-            let speed = this.playground.height* 0.5;
+            if(Math.random() < 1 / 100.0)
+            {
+                let player = this.playground.plays[Math.floor(Math.random() * this.playground.plays.length)];
+                let speed = this.playground.height* 0.5;
 
-            let distance = this.get_distance(this.x,this.y,player.x,player.y);
+                let distance = this.get_distance(this.x,this.y,player.x,player.y);
 
-            let v = speed * this.timedate /1000;
-            let time = distance / v;
+                let v = speed * this.timedate /1000;
+                let time = distance / v;
 
-            let tx = player.x + time * player.speed * player.timedate /1000 * player.vx;
-            let ty = player.y + time * player.speed * player.timedate /1000 * player.vy;
-            if(this !== player)
-                this.shoot_fireball(tx,ty);
+                let tx = player.x + time * player.speed * player.timedate /1000 * player.vx;
+                let ty = player.y + time * player.speed * player.timedate /1000 * player.vy;
+                if(this !== player)
+                    this.shoot_fireball(tx,ty);
+            }
+            else if (Math.random() > 0.999)
+            {
+                if(this.playground.plays.length > 1)
+                {
+                     this.all_shoot_fireball();
+                }
+            }
+
+
         }
         if(this.damage_speed > 5)
         {
@@ -152,27 +200,38 @@ class Player extends AcGameObject
             this.damage_speed *= this.f;
         }
         else{
-            if(this.move_length < this.esp)
+            if(this.cur_skill === "flash" && this.is_flash)
             {
-                this.vx = this.vy = 0
+                this.vx = this.vy =0;
                 this.move_length = 0;
-                if(!this.is_me)
-                {
-                    let tx = Math.random() * this.playground.width;
-                    let ty = Math.random() * this.playground.height;
-
-                    this.move_to(tx,ty);
-                }
+                this.cur_skill = null;
+                this.is_flash = false;
+                this.flash(this.flash_angle);
             }
             else
             {
-                let moved = Math.min(this.move_length,this.speed * this.timedate /1000);
+                if(this.move_length < this.esp)
+                {
+                    this.vx = this.vy = 0
+                    this.move_length = 0;
+                    if(!this.is_me)
+                    {
+                        let tx = Math.random() * this.playground.width;
+                        let ty = Math.random() * this.playground.height;
 
-                this.x += this.vx * moved;
-                this.y += this.vy * moved;
+                        this.move_to(tx,ty);
+                    }
+                }
+                else
+                {
+                    let moved = Math.min(this.move_length,this.speed * this.timedate /1000);
 
-                this.move_length -= moved;
+                    this.x += this.vx * moved;
+                    this.y += this.vy * moved;
 
+                    this.move_length -= moved;
+
+                }
             }
         }
         this.render();
