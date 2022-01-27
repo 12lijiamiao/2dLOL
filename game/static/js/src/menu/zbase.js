@@ -8,16 +8,21 @@ class AcgameMenu{
         <div class = "ac_game_menu_item ac_game_menu_item_dan">
         单人模式
         </div>
+        <br>
         <div class = "ac_game_menu_item ac_game_menu_item_shuang">
         多人对战
         </div>
+        <br>
         <div class = "ac_game_menu_item ac_game_menu_item_settings">
         设置
         </div>
    </div>
 </div>
 `);
+
+       this.$menu.hide();
        this.root.$ac_game.append(this.$menu);
+       
        this.$dan = this.$menu.find(".ac_game_menu_item_dan");
        this.$shuang = this.$menu.find(".ac_game_menu_item_shuang");
        this.$settings = this.$menu.find(".ac_game_menu_item_settings");
@@ -39,7 +44,8 @@ class AcgameMenu{
             console.log("click shuang ren");
        });
        this.$settings.click(function(){
-            console.log("click settings")
+
+            outer.root.settings.remote_logout();
        });
    }
    show(){//menu界面
