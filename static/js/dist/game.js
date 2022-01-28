@@ -44,16 +44,18 @@ class AcgameMenu{
             console.log("click shuang ren");
        });
        this.$settings.click(function(){
-
-            outer.root.settings.remote_logout();
+           if(outer.root.settings.platform === "web")
+           {
+               outer.root.settings.remote_logout();
+           }
        });
    }
-   show(){//menu界面
+    show(){//menu界面
         this.$menu.show();
-   }
-   hide(){
+    }
+    hide(){
         this.$menu.hide();
-   }
+    }
 
 
 
@@ -707,19 +709,26 @@ class AcgameSettings{
 
     start()
     {
-        this.getinfo();
-        this.add_listening_events();
+        if (this.platform === "web")
+        {
+            this.web_getinfo();
+            this.add_listening_events();
+        }
+        else if (this.platform === "acapp")
+        {
+            this.acapp_getinfo();
+        }
     }
-    
+
     add_listening_events()
     {
         let outer= this;
         this.add_listening_events_login();
         this.add_listening_events_register();
         this.$acwing_login.click(function()
-        {
-            outer.web_acwing_login();
-        });
+            {
+                outer.web_acwing_login();
+            });
     }
 
     add_listening_events_login()
@@ -729,10 +738,10 @@ class AcgameSettings{
             {
                 outer.register();
             });
-       this.$login_option.click(function()
-           {
-               outer.remote_login();
-           });
+        this.$login_option.click(function()
+            {
+                outer.remote_login();
+            });
     }
     add_listening_events_register()
     {
@@ -829,7 +838,7 @@ class AcgameSettings{
     }
 
 
-    getinfo()
+    web_getinfo()
     {
         let outer = this;
         $.ajax({
@@ -852,6 +861,40 @@ class AcgameSettings{
 
             }
         });
+    }
+
+    acwing_login(appid,redirect_uri,scope,state)
+    {
+        let outer =this;
+        this.root.acwingos.api.oauth2.authorize(appid, redirect_uri, scope, state, function(resp){
+            console.log(resp);
+            if (resp.result === "success")
+            {
+                outer.username=resp.username;
+                outer.photo=resp.photo;
+                outer.hide();
+                outer.root.menu.show();
+            }
+        });
+    }
+
+    acapp_getinfo()
+    {
+        let outer = this;
+
+        $.ajax({
+            url:"https://app730.acapp.acwing.com.cn/settings/acwing/acapp/apply_code",
+            type:"GET",
+            success:function(resp)
+            {
+                if(resp.result === "success")
+                {
+                    outer.acwing_login(resp.appid,resp.redirect_uri,resp.scope,resp.state);
+
+                }
+            }
+        });
+
     }
     hide()
     {

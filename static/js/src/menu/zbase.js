@@ -44,16 +44,18 @@ class AcgameMenu{
             console.log("click shuang ren");
        });
        this.$settings.click(function(){
-
-            outer.root.settings.remote_logout();
+           if(outer.root.settings.platform === "web")
+           {
+               outer.root.settings.remote_logout();
+           }
        });
    }
-   show(){//menu界面
+    show(){//menu界面
         this.$menu.show();
-   }
-   hide(){
+    }
+    hide(){
         this.$menu.hide();
-   }
+    }
 
 
 
