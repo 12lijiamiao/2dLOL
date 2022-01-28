@@ -17,11 +17,7 @@ def getinfo_web(request):
             "result" : "未登录",
         })
     else:
-        players = Player.objects.all();
-        for i in players:
-            if i.user == user:
-                player = i;
-                break;
+        player = Player.objects.get(user=user);
         return JsonResponse({
             'result':"success",
             'username': player.user.username,

@@ -44,7 +44,7 @@ class AcgameMenu{
             console.log("click shuang ren");
        });
        this.$settings.click(function(){
-            console.log("click settings")
+
             outer.root.settings.remote_logout();
        });
    }
@@ -697,6 +697,8 @@ class AcgameSettings{
 
         this.$register.hide();
 
+        this.$acwing_login = this.$settings.find(".ac_game_settings_acwing img");
+
         this.root.$ac_game.append(this.$settings);
 
 
@@ -711,8 +713,13 @@ class AcgameSettings{
     
     add_listening_events()
     {
+        let outer= this;
         this.add_listening_events_login();
         this.add_listening_events_register();
+        this.$acwing_login.click(function()
+        {
+            outer.web_acwing_login();
+        });
     }
 
     add_listening_events_login()
@@ -737,6 +744,19 @@ class AcgameSettings{
             outer.remote_register();
         });
 
+    }
+    web_acwing_login()
+    {
+        $.ajax({
+            url:"https://app730.acapp.acwing.com.cn/settings/acwing/web/apply_code/",
+            type:"GET",
+            success:function(resp){
+                if(resp.result === "success")
+                {
+                    window.location.replace(resp.redirect_acwing_url);
+                }
+            }
+        });
     }
     remote_login()
     {

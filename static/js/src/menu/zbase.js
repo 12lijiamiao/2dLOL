@@ -44,7 +44,7 @@ class AcgameMenu{
             console.log("click shuang ren");
        });
        this.$settings.click(function(){
-            console.log("click settings")
+
             outer.root.settings.remote_logout();
        });
    }

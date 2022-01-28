@@ -33,7 +33,6 @@
     font-size: 3vh;
     text-align:center;
     padding-top:2vh;
-    margin-bottom: 2vh;
 }
 
 .ac_game_settings_username{
@@ -95,6 +94,7 @@
     transform:translate(-50%,-50%);
     background-color : rgba(0,0,0,0.7);
     border-radius:5px;
+    cursor:pointer;
 
 }
 
