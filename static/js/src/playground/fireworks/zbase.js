@@ -1,10 +1,11 @@
 class FireWorks extends AcGameObject {
-    constructor(player,x,y, color , radius, angle , move_length, speed)
+    constructor(playground,player,x,y, color , radius, angle , move_length, speed)
     {
         super();
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.playground = playground;
 
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
@@ -38,7 +39,7 @@ class FireWorks extends AcGameObject {
     render()
     {
         this.ctx.beginPath();
-        this.ctx.arc(this.x,this.y,this.radius,0,Math.PI * 2 ,false);
+        this.ctx.arc(this.x * this.playground.scale,this.y * this.playground.scale,this.radius * this.playground.scale,0,Math.PI * 2 ,false);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
     }

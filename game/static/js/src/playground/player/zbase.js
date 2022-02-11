@@ -17,7 +17,7 @@ class Player extends AcGameObject
         this.speed = speed;
         this.is_me= is_me;
         this.move_length=0;
-        this.esp = 0.1;
+        this.esp = 0.01;
         this.cur_skill = null;
         this.flash_angle = 0;
         this.is_flash = false;
@@ -40,8 +40,8 @@ class Player extends AcGameObject
             this.add_listening_events();
         else
         {
-            let tx = Math.random() * this.playground.width;
-            let ty = Math.random() * this.playground.height;
+            let tx = Math.random() * this.playground.width / this.playground.scale;
+            let ty = Math.random() ;
 
             this.move_to(tx,ty);
         }
@@ -69,20 +69,23 @@ class Player extends AcGameObject
 
         this.playground.GameMap.$canvas.mousedown(function(e){
             const rect = outer.ctx.canvas.getBoundingClientRect();
+
+            let tx = ( e.clientX - rect.left ) / outer.playground.scale;
+            let ty = ( e.clientY - rect.top ) / outer.playground.scale;
             if(!outer.live)
                 return false;
             if(e.which === 3 )
-                outer.move_to(e.clientX - rect.left,e.clientY - rect.top);
+                outer.move_to(tx,ty);
             else if (e.which === 1)
             {
                 if(outer.cur_skill === "fireball")
                 {
-                    outer.shoot_fireball(e.clientX - rect.left,e.clientY - rect.top);
+                    outer.shoot_fireball(tx,ty);
                     outer.cur_skill =null;
                 }
                 else if(outer.cur_skill === "flash")
                 {
-                    outer.flash_angle = Math.atan2(e.clientY - outer.y - rect.top ,e.clientX - outer.x - rect.left);
+                    outer.flash_angle = Math.atan2((e.clientY - outer.y - rect.top)/this.playground.scale ,(e.clientX - outer.x - rect.left)/this.playground.scale);
                     outer.is_flash = true;
                 }
             }
@@ -94,11 +97,11 @@ class Player extends AcGameObject
         for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
         {
             let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * this.playground.height * 0.005;
-            let move_length = Math.random() * this.playground.height * 0.15 ;
-            let speed = this.playground.height*0.15;
+            let radius = Math.random() * 0.005;
+            let move_length = Math.random() * 0.15 ;
+            let speed = 0.15;
 
-            new FireWorks(this,this.x,this.y,this.color,radius,angle,move_length,speed);
+            new FireWorks(this.playground,this,this.x,this.y,this.color,radius,angle,move_length,speed);
 
         }
 
@@ -120,9 +123,9 @@ class Player extends AcGameObject
     shoot_fireball( tx , ty)
     {
         let angle = Math.atan2(ty-this.y,tx-this.x);
-        let speed = this.playground.height*0.5;
-        let move_length = this.playground.height*0.8;
-        let radius = this.playground.height* 0.01;
+        let speed = 0.5;
+        let move_length = 0.8;
+        let radius =  0.01;
         new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
     }
 
@@ -131,16 +134,16 @@ class Player extends AcGameObject
         for(let i = 0 ; i < 10; i++)
         {
             let angle = (Math.PI * 2)/10*i;
-            let speed = this.playground.height*0.5;
-            let move_length = this.playground.height*0.8;
-            let radius = this.playground.height* 0.01;
+            let speed = 0.5;
+            let move_length = 0.8;
+            let radius = 0.01;
             new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
         }
     }
 
     flash(angle)
     {
-        let distance = this.playground.height * 0.1;
+        let distance = 0.1;
         this.x += distance * Math.cos(angle);
         this.y += distance * Math.sin(angle);
     }
@@ -171,7 +174,7 @@ class Player extends AcGameObject
             if(Math.random() < 1 / 100.0)
             {
                 let player = this.playground.plays[Math.floor(Math.random() * this.playground.plays.length)];
-                let speed = this.playground.height* 0.5;
+                let speed =  0.5;
 
                 let distance = this.get_distance(this.x,this.y,player.x,player.y);
 
@@ -193,7 +196,7 @@ class Player extends AcGameObject
 
 
         }
-        if(this.damage_speed > 5)
+        if(this.damage_speed > this.esp)
         {
             this.vx = 0 ;
             this.vy = 0 ;
@@ -223,8 +226,8 @@ class Player extends AcGameObject
                     this.move_length = 0;
                     if(!this.is_me)
                     {
-                        let tx = Math.random() * this.playground.width;
-                        let ty = Math.random() * this.playground.height;
+                        let tx = Math.random() * this.playground.width / this.playground.scale;
+                        let ty = Math.random() ;
 
                         this.move_to(tx,ty);
                     }
@@ -247,17 +250,18 @@ class Player extends AcGameObject
 
     render()
     {
+        let scale = this.playground.scale;
         if (this.is_me) {
             this.ctx.save();
             this.ctx.beginPath();
-            this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+            this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);
             this.ctx.stroke();
             this.ctx.clip();
-            this.ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2); 
+            this.ctx.drawImage(this.img, (this.x - this.radius) * scale, (this.y - this.radius) * scale, this.radius * 2 * scale, this.radius * 2 * scale); 
             this.ctx.restore();
         }else{
             this.ctx.beginPath();
-            this.ctx.arc(this.x,this.y,this.radius,0,Math.PI * 2 , false);
+            this.ctx.arc(this.x * scale,this.y * scale,this.radius * scale,0,Math.PI * 2 , false);
             this.ctx.fillStyle = this.color;
             this.ctx.fill();
         }
