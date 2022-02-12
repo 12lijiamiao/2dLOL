@@ -38,15 +38,20 @@ class AcgameMenu{
        let outer = this;
        this.$dan.click(function(){
             outer.hide();
-            outer.root.playground.show();
+            outer.root.playground.show("danren");
        });
        this.$shuang.click(function(){
-            console.log("click shuang ren");
+            outer.hide();
+            outer.root.playground.show("duoren");
        });
        this.$settings.click(function(){
            if(outer.root.settings.platform === "web")
            {
                outer.root.settings.remote_logout();
+           }
+           else
+           {
+               outer.root.acwingos.api.window.close();
            }
        });
    }

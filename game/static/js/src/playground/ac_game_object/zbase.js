@@ -6,9 +6,21 @@ class AcGameObject {
     {
         Ac_Game_Objects.push(this);
 
+        this.uuid = this.random_uuid();
         this.is_start = false;
         this.timedate = 0;
 
+    }
+
+    random_uuid()
+    {
+        let res="";
+        for(let i = 0 ; i<8; i++)
+        {
+            res += parseInt(Math.floor(Math.random()*10));
+        }
+
+        return res;
     }
 
     start()

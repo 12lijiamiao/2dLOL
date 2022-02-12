@@ -1,6 +1,6 @@
 class Player extends AcGameObject
 {
-    constructor(playground,x,y,speed,radius,color,is_me)
+    constructor(playground,x,y,speed,radius,color,character,username,photo,id)
     {
         super();
         this.playground = playground;
@@ -15,7 +15,7 @@ class Player extends AcGameObject
         this.damage_vy=0;
         this.damage_speed=0
         this.speed = speed;
-        this.is_me= is_me;
+        this.character = character;
         this.move_length=0;
         this.esp = 0.01;
         this.cur_skill = null;
@@ -23,10 +23,13 @@ class Player extends AcGameObject
         this.is_flash = false;
         this.spend_time=0;
         this.live = true;
+        this.photo = photo;
+        this.username = username;
+        this.id = id;
 
-        if (this.is_me) {
+        if (this.character !== "ai") {
             this.img = new Image();
-            this.img.src = this.playground.root.settings.photo;
+            this.img.src = this.photo;
         }
 
 
@@ -36,9 +39,9 @@ class Player extends AcGameObject
 
     start()
     {
-        if(this.is_me)
+        if(this.character === "me")
             this.add_listening_events();
-        else
+        else if (this.character === "ai")
         {
             let tx = Math.random() * this.playground.width / this.playground.scale;
             let ty = Math.random() ;
@@ -169,7 +172,7 @@ class Player extends AcGameObject
     {
         this.spend_time += this.timedate / 1000;
 
-        if(!this.is_me && this.spend_time > 4 )
+        if(this.character === "ai" && this.spend_time > 4 )
         {
             if(Math.random() < 1 / 100.0)
             {
@@ -224,8 +227,9 @@ class Player extends AcGameObject
                 {
                     this.vx = this.vy = 0
                     this.move_length = 0;
-                    if(!this.is_me)
+                    if(this.character === "ai")
                     {
+
                         let tx = Math.random() * this.playground.width / this.playground.scale;
                         let ty = Math.random() ;
 
@@ -251,7 +255,7 @@ class Player extends AcGameObject
     render()
     {
         let scale = this.playground.scale;
-        if (this.is_me) {
+        if (this.character !== "ai") {
             this.ctx.save();
             this.ctx.beginPath();
             this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);

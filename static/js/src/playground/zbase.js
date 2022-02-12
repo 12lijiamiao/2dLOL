@@ -32,15 +32,30 @@ class AcgamePlayground{
         this.scale=this.height;
     }
 
-    show()
+    show(mode)
     {
+        let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();
         this.plays = [];
         this.GameMap = new GameMap(this);
-        this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,"white",true));
-        for(let i = 0 ; i < 5 ;i++)
-            this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),false));
+        this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
+        if(mode === "danren")
+        {    
+            for(let i = 0 ; i < 5 ;i++)
+                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai"));
+        }
+        else if (mode === "duoren")
+        {
+            this.mps = new MultiplayerSocket(this);
+            this.mps.uuid = this.plays[0].uuid;
+
+            this.mps.ws.onopen = function()
+            {
+                outer.mps.send_create_player(outer.root.settings.username,outer.root.settings.photo);
+            };
+
+        }
         this.$playground.show();
     }
 
