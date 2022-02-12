@@ -34,6 +34,7 @@ class AcgamePlayground{
 
     show(mode)
     {
+        this.mode = mode;
         let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();

@@ -14,6 +14,7 @@ class FireBall extends AcGameObject
         this.eqs = 0.01;
         this.radius = radius;
         this.damage = 0.01;
+        this.player.fireballs.push(this);
 
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
@@ -45,19 +46,17 @@ class FireBall extends AcGameObject
         let angle = Math.atan2(player.y-this.y,player.x-this.x);
 
         player.attacked(angle,this.damage);
+
+        if (this.playground.mode ==="duoren")
+        {
+              this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y);
+      
+        }
         this.destory();
     }
 
-    update()
+    update_move()
     {
-        for(let i = 0 ; i < this.playground.plays.length ; i++)
-        {
-            let player = this.playground.plays[i];
-            if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius))
-            {
-                this.attack(player);
-            }
-        }
         if(this.move_length < this.eqs )
         {
             this.destory();
@@ -72,6 +71,27 @@ class FireBall extends AcGameObject
 
             this.move_length -= moved;
         }
+    }
+
+    update_attack()
+    {
+        for(let i = 0 ; i < this.playground.plays.length ; i++)
+        {
+            let player = this.playground.plays[i];
+            if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius))
+            {
+                this.attack(player);
+            }
+        }
+      
+    }
+    update()
+    {
+        if (this.player.character !== "enemy")
+        {
+            this.update_attack();
+        }
+        this.update_move();
         this.render();
     }
 
@@ -82,5 +102,18 @@ class FireBall extends AcGameObject
         this.ctx.arc(this.x * scale,this.y * scale ,this.radius * scale,0,Math.PI * 2, false);
         this.ctx.fillStyle = "orange";
         this.ctx.fill();
+    }
+
+    on_destory()
+    {
+        for (let i =0 ;i<this.player.fireballs.length;i++)
+        {
+            let fireball =this.player.fireballs[i];
+            if(fireball === this)
+            {
+                this.player.fireballs.splice(i, 1);
+                break;
+            }
+        }
     }
 }

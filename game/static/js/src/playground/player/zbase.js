@@ -26,6 +26,7 @@ class Player extends AcGameObject
         this.photo = photo;
         this.username = username;
         this.id = id;
+        this.fireballs=[];
 
         if (this.character !== "ai") {
             this.img = new Image();
@@ -78,13 +79,25 @@ class Player extends AcGameObject
             if(!outer.live)
                 return false;
             if(e.which === 3 )
+            {
                 outer.move_to(tx,ty);
+                if (outer.playground.mode === "duoren")
+                {
+                    outer.playground.mps.send_move_to(tx,ty);
+                }
+            }
             else if (e.which === 1)
             {
                 if(outer.cur_skill === "fireball")
                 {
-                    outer.shoot_fireball(tx,ty);
+                    let fireball = outer.shoot_fireball(tx,ty);
                     outer.cur_skill =null;
+
+                    if (outer.playground.mode === "duoren")
+                    {
+                        outer.playground.mps.send_fireball(tx,ty,fireball.uuid);
+                    }
+
                 }
                 else if(outer.cur_skill === "flash")
                 {
@@ -123,13 +136,23 @@ class Player extends AcGameObject
         this.damage_vy = Math.sin(angle);
     }
 
+    receive_attacked(attackee,ball_uuid,angle,damage,x,y)
+    {
+        attackee.fireball_destory(ball_uuid);
+        console.log(ball_uuid);
+
+        this.x = x;
+        this.y = y;
+        this.attacked(angle,damage);
+    }
+
     shoot_fireball( tx , ty)
     {
         let angle = Math.atan2(ty-this.y,tx-this.x);
         let speed = 0.5;
         let move_length = 0.8;
         let radius =  0.01;
-        new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
+        return new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
     }
 
     all_shoot_fireball()
@@ -206,10 +229,8 @@ class Player extends AcGameObject
             this.move_length=0;
 
             let moved = this.damage_speed * this.timedate /1000;
-
             this.x += moved * this.damage_vx;
             this.y += moved * this.damage_vy;
-
             this.damage_speed *= this.f;
         }
         else{
@@ -279,6 +300,19 @@ class Player extends AcGameObject
             if(this === player)
             {
                 this.playground.plays.splice(i,1);
+            }
+        }
+    }
+    fireball_destory(uuid)
+    {
+        for (let i=0 ; i<this.fireballs.length ;i++ )
+        {
+            let fireball = this.fireballs[i];
+            if (fireball.uuid === uuid)
+            {
+                console.log("yes");
+                fireball.destory();
+                break;
             }
         }
     }

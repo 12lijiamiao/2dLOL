@@ -44,7 +44,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
                 'uuid':data['uuid'],
                 'username':data['username'],
                 'photo':data['photo'],
-                'id':str(len(players)),
+                'id':len(players),
             })
         cache.set(self.room_name,players,3600)
 
@@ -56,7 +56,46 @@ class MultiPlayer(AsyncWebsocketConsumer):
                     'uuid':data['uuid'],
                     'username':data['username'],
                     'photo':data['photo'],
-                    'id':str(len(players)-1),
+                    'id':len(players)-1,
+                }
+            )
+
+    async def move_to(self,data):
+        await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    'type':"group_send",
+                    'event':"move_to",
+                    'uuid':data['uuid'],
+                    'tx':data['tx'],
+                    'ty':data['ty'],
+                }
+            )
+    async def fireball(self,data):
+        await self.channel_layer.group_send(
+                    self.room_name,
+                    {
+                        'type':"group_send",
+                        'event':"fireball",
+                        'uuid':data["uuid"],
+                        'tx':data['tx'],
+                        'ty':data['ty'],
+                        'ball_uuid':data['ball_uuid'],
+                    }
+                )
+    async def attack(self, data):
+        await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    'type':"group_send",
+                    'event':"attack",
+                    'uuid':data['uuid'],
+                    'attacked_uuid':data["attacked_uuid"],
+                    'ball_uuid':data['ball_uuid'],
+                    'angle':data['angle'],
+                    'damage':data["damage"],
+                    'x':data["x"],
+                    'y':data['y'],
                 }
             )
 
@@ -67,4 +106,10 @@ class MultiPlayer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['event'] == 'create_player':
             await self.create_player(data)
+        elif data['event'] == 'move_to':
+            await self.move_to(data)
+        elif data['event'] == 'fireball':
+            await self.fireball(data)
+        elif data['event'] == 'attack':
+            await self.attack(data)
 
