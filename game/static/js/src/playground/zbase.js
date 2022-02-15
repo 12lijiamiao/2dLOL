@@ -42,15 +42,18 @@ class AcgamePlayground{
         this.root.$ac_game.append(this.$playground);
         this.resize();
         this.player_cnt = 0;
+        this.foucs = null;
         this.state = "waiting";
         this.plays = [];
         this.GameMap = new GameMap(this);
         this.notice_board = new NoticeBoard(this);
-        this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
+        this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
+        this.foucs = this.plays[0];
+        this.min_map = new MinMap(this,this.GameMap.ctx);
         if(mode === "danren")
         {
             for(let i = 0 ; i < 5 ;i++)
-                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai",null,null,i));
+                this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,this.get_random_color(),"ai",null,null,i));
         }
         else if (mode === "duoren")
         {
@@ -75,5 +78,7 @@ class AcgamePlayground{
        // console.log("关闭"+Ac_Game_Objects.length);
         this.$playground.hide();
     }
+
+    
 
 }

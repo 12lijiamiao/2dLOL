@@ -54,8 +54,8 @@ class Player extends AcGameObject
         }
         else if (this.character === "ai")
         {
-            let tx = Math.random() * this.playground.width / this.playground.scale;
-            let ty = Math.random() ;
+            let tx = Math.random() * this.playground.real_width;
+            let ty = Math.random() * this.playground.real_height;
 
             this.move_to(tx,ty);
         }
@@ -84,17 +84,31 @@ class Player extends AcGameObject
         this.playground.GameMap.$canvas.mousedown(function(e){
             const rect = outer.ctx.canvas.getBoundingClientRect();
 
-            let tx = ( e.clientX - rect.left ) / outer.playground.scale;
-            let ty = ( e.clientY - rect.top ) / outer.playground.scale;
-
+            let tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
+            let ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
            // if (outer.playground.state === "over" && e.which === 3)
             //{
+   
               //  outer.playground.root.menu.show();
               //  outer.playground.hide();
            // }
 
             if(outer.playground.state !== "fighting")
-                return false;
+                return true;
+
+            if (tx < 0 || ty < 0 || tx > outer.playground.real_width || ty > outer.playground.real_height )
+                return true;
+
+            for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
+            {
+                let angle = Math.random()* Math.PI * 2;
+                let radius = 0.1;
+                let move_length = Math.random() * 0.15 ;
+                let speed = 0.10;
+                new FireWorks(outer.playground,outer,tx,ty,"rgba(0,0,0,0.7)",radius,angle,move_length,speed);
+
+            }
+
             if(e.which === 3 )
             {
                 outer.move_to(tx,ty);
@@ -130,7 +144,7 @@ class Player extends AcGameObject
         for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
         {
             let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * 0.005;
+            let radius = Math.random() * 0.1;
             let move_length = Math.random() * 0.15 ;
             let speed = 0.15;
 
@@ -185,15 +199,44 @@ class Player extends AcGameObject
 
     flash(angle)
     {
-        let distance = 0.1;
+        let distance = 0.2;
         this.x += distance * Math.cos(angle);
         this.y += distance * Math.sin(angle);
         this.vx = this.vy =this.move_length = 0;
+
+        if (this.out_of_map(this.x,this.y))
+        {
+            this.damage_speed = 0.005 * 80;
+
+            this.damage_vx = -1 * Math.cos(angle);
+            this.damage_vy = -1 * Math.sin(angle);
+        }
+
+        if (this.x - this.radius < this.esp * 0.1)
+        {
+            this.x = this.radius + this.esp * 0.101;
+        }
+
+        if (this.y - this.radius< this.esp * 0.1)
+        {
+            this.y = this.radius + this.esp * 0.101;
+        }
+
+        if (this.x + this.radius > this.playground.real_width - this.esp * 0.1)
+        {
+            this.x = this.playground.real_width - this.radius - this.esp * 0.101;
+        }
+
+        if (this.y + this.radius> this.playground.real_height - this.esp * 0.1)
+        {
+            this.y = this.playground.real_height - this.radius - this.esp * 0.101;
+        }
     }
 
     get_distance(x1,y1,x2,y2)
     {
         let dx = x1 - x2;
+
         let dy = y1 - y2;
 
         return Math.sqrt(dx * dx + dy * dy);
@@ -206,6 +249,16 @@ class Player extends AcGameObject
         let angle = Math.atan2(ty-this.y,tx-this.x);
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
+    }
+
+    out_of_map(x , y)
+    {
+        if (x - this.radius < this.esp*0.1 || x + this.radius > this.playground.real_width - this.esp*0.1)
+            return true;
+
+        if (y - this.radius < this.esp*0.1 || y + this.radius > this.playground.real_height - this.esp*0.1)
+            return true;
+        return false;
     }
 
     update()
@@ -239,6 +292,45 @@ class Player extends AcGameObject
 
 
         }
+
+        if (this.out_of_map(this.x,this.y))
+        {
+            if (this.x < this.esp * 0.1)
+            {
+                this.x = this.radius;
+            }
+
+            if (this.y < this.esp * 0.1)
+            {
+                this.y = this.radius;
+            }
+
+            if (this.x > this.playground.real_width - this.esp * 0.1)
+            {
+                this.x = this.playground.real_width - this.radius;
+            }
+
+            if (this.y > this.playground.real_height - this.esp * 0.1)
+            {
+                this.y = this.playground.real_height - this.radius;
+            } 
+            if (this.damage_speed >this.esp)
+            {
+                this.damage_speed = 0.01 * 80;
+
+                this.damage_vx = -1 * this.damage_vx;
+                this.damage_vy = -1 * this.damage_vy;
+            }
+            else if(this.move_length >this.esp)
+            {
+                this.damage_speed = 0.005 * 80 ;
+                this.damage_vx = -1 * this.vx;
+                this.damage_vy = -1 * this.vy;
+            }
+
+        }
+
+
         if(this.damage_speed > this.esp)
         {
             this.vx = 0 ;
@@ -271,8 +363,8 @@ class Player extends AcGameObject
                     if(this.character === "ai")
                     {
 
-                        let tx = Math.random() * this.playground.width / this.playground.scale;
-                        let ty = Math.random() ;
+                        let tx = Math.random() * this.playground.real_width;
+                        let ty = Math.random() * this.playground.real_width;
 
                         this.move_to(tx,ty);
                     }
@@ -295,18 +387,23 @@ class Player extends AcGameObject
 
     render()
     {
+        let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+        let y = this.y - this.playground.plays[0].y + 0.5 ;
+
         let scale = this.playground.scale;
+
+
         if (this.character !== "ai") {
             this.ctx.save();
             this.ctx.beginPath();
-            this.ctx.arc(this.x * scale, this.y * scale, this.radius * scale, 0, Math.PI * 2, false);
+            this.ctx.arc(x * scale, y * scale, this.radius * scale, 0, Math.PI * 2, false);
             this.ctx.stroke();
             this.ctx.clip();
-            this.ctx.drawImage(this.img, (this.x - this.radius) * scale, (this.y - this.radius) * scale, this.radius * 2 * scale, this.radius * 2 * scale); 
+            this.ctx.drawImage(this.img, (x - this.radius) * scale, (y - this.radius) * scale, this.radius * 2 * scale, this.radius * 2 * scale);
             this.ctx.restore();
         }else{
             this.ctx.beginPath();
-            this.ctx.arc(this.x * scale,this.y * scale,this.radius * scale,0,Math.PI * 2 , false);
+            this.ctx.arc(x * scale,y * scale,this.radius * scale,0,Math.PI * 2 , false);
             this.ctx.fillStyle = this.color;
             this.ctx.fill();
         }
@@ -344,5 +441,7 @@ class Player extends AcGameObject
             }
         }
     }
+
+
 }
 

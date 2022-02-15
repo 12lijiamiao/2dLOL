@@ -38,8 +38,12 @@ class FireWorks extends AcGameObject {
 
     render()
     {
+        if (this.playground.foucs) return false ;
+
+        let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+        let y = this.y - this.playground.plays[0].y + 0.5 ;
         this.ctx.beginPath();
-        this.ctx.arc(this.x * this.playground.scale,this.y * this.playground.scale,this.radius * this.playground.scale,0,Math.PI * 2 ,false);
+        this.ctx.arc(x * this.playground.scale,y * this.playground.scale,this.radius * this.playground.scale,0,Math.PI * 2 ,false);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
     }

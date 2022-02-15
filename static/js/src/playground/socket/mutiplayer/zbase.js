@@ -72,8 +72,8 @@ class MultiplayerSocket{
     {
         let player = new Player(
             this.playground,
-            this.playground.width/2/this.playground.scale,
-            0.5,
+            this.playground.real_width/2,
+            this.playground.real_height/2,
             0.15,
             0.05,
             "white",

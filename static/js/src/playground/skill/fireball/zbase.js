@@ -11,13 +11,23 @@ class FireBall extends AcGameObject
         this.speed=speed;
         this.ctx = this.player.ctx;
         this.move_length=move_length;
-        this.eqs = 0.01;
+        this.esp = 0.01;
         this.radius = radius;
         this.damage = 0.01;
         this.player.fireballs.push(this);
 
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
+    }
+
+    out_of_map(x , y)
+    {
+        if (x - this.radius < this.esp*0.1 || x + this.radius > this.playground.real_width - this.esp*0.1)
+            return true;
+
+        if (y - this.radius < this.esp*0.1 || y + this.radius > this.playground.real_height - this.esp*0.1)
+            return true;
+        return false;
     }
 
     get_distance(x1,y1,x2,y2)
@@ -32,6 +42,7 @@ class FireBall extends AcGameObject
         let distance = this.get_distance(tx,ty,this.x,this.y);
         if(player.character === "ai" && distance < player.radius * 2 )
         {
+
             player.cur_skill = "flash";
             player.is_flash = true;
             player.flash_angle = this.angle + Math.PI / 2;
@@ -49,15 +60,15 @@ class FireBall extends AcGameObject
 
         if (this.playground.mode ==="duoren")
         {
-              this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y);
-      
+            this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y);
+
         }
         this.destory();
     }
 
     update_move()
     {
-        if(this.move_length < this.eqs )
+        if(this.move_length < this.esp )
         {
             this.destory();
             return false;
@@ -83,10 +94,16 @@ class FireBall extends AcGameObject
                 this.attack(player);
             }
         }
-      
+
     }
     update()
     {
+        if (this.out_of_map(this.x,this.y))
+        {
+            this.destory();
+            return false;
+        }
+
         if (this.player.character !== "enemy")
         {
             this.update_attack();
@@ -97,9 +114,11 @@ class FireBall extends AcGameObject
 
     render()
     {
+        let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+        let y = this.y - this.playground.plays[0].y + 0.5 ;
         let scale = this.playground.scale;
         this.ctx.beginPath();
-        this.ctx.arc(this.x * scale,this.y * scale ,this.radius * scale,0,Math.PI * 2, false);
+        this.ctx.arc(x * scale,y * scale ,this.radius * scale,0,Math.PI * 2, false);
         this.ctx.fillStyle = "orange";
         this.ctx.fill();
     }
