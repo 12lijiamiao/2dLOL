@@ -4,7 +4,6 @@ class AcgamePlayground{
         this.root = root;
         this.$playground = $(`<div class = "ac_game_playground" ></div>`);
         this.hide();
-        
         this.start();
     }
 
@@ -30,6 +29,10 @@ class AcgamePlayground{
         this.height = unit*9;
         this.width = unit*16;
         this.scale=this.height;
+
+
+        this.real_width = this.real_height = 3;
+
     }
 
     show(mode)
@@ -38,13 +41,16 @@ class AcgamePlayground{
         let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();
+        this.player_cnt = 0;
+        this.state = "waiting";
         this.plays = [];
         this.GameMap = new GameMap(this);
+        this.notice_board = new NoticeBoard(this);
         this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
         if(mode === "danren")
-        {    
+        {
             for(let i = 0 ; i < 5 ;i++)
-                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai"));
+                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai",null,null,i));
         }
         else if (mode === "duoren")
         {
@@ -63,6 +69,10 @@ class AcgamePlayground{
     hide()
     {
         this.is_doing = false;
+
+       // Ac_Game_Objects.splice(0,Ac_Game_Objects.length);//无法返回界面
+
+       // console.log("关闭"+Ac_Game_Objects.length);
         this.$playground.hide();
     }
 

@@ -39,6 +39,10 @@ class MultiplayerSocket{
             {
                 outer.receive_attack(uuid,data.attacked_uuid,data.ball_uuid,data.damage,data.angle,data.x,data.y)
             }
+            else if (event === "flash")
+            {
+                outer.receive_flash(uuid,data.angle);
+            }
         }
     }
 
@@ -144,5 +148,22 @@ class MultiplayerSocket{
         let attacked = this.search_player(attacked_uuid);
         
         if (attackee && attacked) attacked.receive_attacked(attackee,ball_uuid,angle,damage,x,y);
+    }
+
+    send_flash(angle)
+    {
+        let outer = this;
+        this.ws.send(JSON.stringify({
+            'event':"flash",
+            'uuid':outer.uuid,
+            'angle':angle,
+        }));
+    }
+
+    receive_flash(uuid,angle)
+    {
+        let player = this.search_player(uuid);
+        
+        if (player)  player.flash(angle);
     }
 }

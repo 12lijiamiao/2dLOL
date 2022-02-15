@@ -144,6 +144,9 @@ let Ac_Game_Animation = function(timestamp){
 }
 
 requestAnimationFrame(Ac_Game_Animation);
+
+
+
 class FireWorks extends AcGameObject {
     constructor(playground,player,x,y, color , radius, angle , move_length, speed)
     {
@@ -222,11 +225,36 @@ class GameMap extends AcGameObject{
         this.ctx.fillRect( 0, 0,this.ctx.canvas.width,this.ctx.canvas.height);
     }
 }
+class NoticeBoard extends AcGameObject {
+    constructor (playground)
+    {
+        super();
+        this.playground = playground;
+        this.ctx = this.playground.GameMap.ctx;
+        this.text = "已就绪 ： 0 人";
+    }
+
+    write(text){
+        this.text = text;
+    }
+    update()
+    {
+        this.render();
+    }
+    render()
+    {
+        this.ctx.font = "20px serif";
+        this.ctx.fillStyle="white";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(this.text,this.playground.width/2,20);
+    }
+}
 class Player extends AcGameObject
 {
     constructor(playground,x,y,speed,radius,color,character,username,photo,id)
     {
         super();
+        playground.player_cnt ++;
         this.playground = playground;
         this.color = color;
         this.x= x;
@@ -246,7 +274,6 @@ class Player extends AcGameObject
         this.flash_angle = 0;
         this.is_flash = false;
         this.spend_time=0;
-        this.live = true;
         this.photo = photo;
         this.username = username;
         this.id = id;
@@ -264,8 +291,18 @@ class Player extends AcGameObject
 
     start()
     {
+        this.playground.notice_board.write("已就绪 ："+this.playground.player_cnt +"人");
+
+        if(this.playground.player_cnt >= 3)
+        {
+            this.playground.state = "fighting";
+            this.playground.notice_board.write("Fighting");
+        }
+
         if(this.character === "me")
+        {
             this.add_listening_events();
+        }
         else if (this.character === "ai")
         {
             let tx = Math.random() * this.playground.width / this.playground.scale;
@@ -280,7 +317,7 @@ class Player extends AcGameObject
         let outer = this;
 
         $(window).keydown(function(e){
-            if(!outer.live)
+            if(outer.playground.state !== "fighting")
                 return false;
             if(e.which === 81)
                 outer.cur_skill = "fireball";
@@ -300,7 +337,14 @@ class Player extends AcGameObject
 
             let tx = ( e.clientX - rect.left ) / outer.playground.scale;
             let ty = ( e.clientY - rect.top ) / outer.playground.scale;
-            if(!outer.live)
+
+           // if (outer.playground.state === "over" && e.which === 3)
+            //{
+              //  outer.playground.root.menu.show();
+              //  outer.playground.hide();
+           // }
+
+            if(outer.playground.state !== "fighting")
                 return false;
             if(e.which === 3 )
             {
@@ -325,7 +369,7 @@ class Player extends AcGameObject
                 }
                 else if(outer.cur_skill === "flash")
                 {
-                    outer.flash_angle = Math.atan2((e.clientY - outer.y - rect.top)/this.playground.scale ,(e.clientX - outer.x - rect.left)/this.playground.scale);
+                    outer.flash_angle = Math.atan2(ty - outer.y ,tx - outer.x);
                     outer.is_flash = true;
                 }
             }
@@ -349,7 +393,6 @@ class Player extends AcGameObject
         if(this.radius < this.esp)
         {
             this.destory();
-            this.live = false;
             return false;
         }
 
@@ -396,6 +439,7 @@ class Player extends AcGameObject
         let distance = 0.1;
         this.x += distance * Math.cos(angle);
         this.y += distance * Math.sin(angle);
+        this.vx = this.vy =this.move_length = 0;
     }
 
     get_distance(x1,y1,x2,y2)
@@ -460,11 +504,14 @@ class Player extends AcGameObject
         else{
             if(this.cur_skill === "flash" && this.is_flash)
             {
-                this.vx = this.vy =0;
-                this.move_length = 0;
                 this.cur_skill = null;
                 this.is_flash = false;
                 this.flash(this.flash_angle);
+
+                if (this.playground.mode === "duoren" && this.character === "me")
+                {
+                    this.playground.mps.send_flash(this.flash_angle);
+                }
             }
             else
             {
@@ -518,6 +565,14 @@ class Player extends AcGameObject
 
     on_destory()
     {
+        if (this.character === "me")
+        {    
+            this.playground.state = "over";
+            this.playground.notice_board.write("You are over");
+
+        }
+
+
         for(let i =0 ;i < this.playground.plays.length ;i ++)
         {
             let player = this.playground.plays[i];
@@ -702,6 +757,10 @@ class MultiplayerSocket{
             {
                 outer.receive_attack(uuid,data.attacked_uuid,data.ball_uuid,data.damage,data.angle,data.x,data.y)
             }
+            else if (event === "flash")
+            {
+                outer.receive_flash(uuid,data.angle);
+            }
         }
     }
 
@@ -808,6 +867,23 @@ class MultiplayerSocket{
         
         if (attackee && attacked) attacked.receive_attacked(attackee,ball_uuid,angle,damage,x,y);
     }
+
+    send_flash(angle)
+    {
+        let outer = this;
+        this.ws.send(JSON.stringify({
+            'event':"flash",
+            'uuid':outer.uuid,
+            'angle':angle,
+        }));
+    }
+
+    receive_flash(uuid,angle)
+    {
+        let player = this.search_player(uuid);
+        
+        if (player)  player.flash(angle);
+    }
 }
 class AcgamePlayground{
     constructor(root)
@@ -815,7 +891,6 @@ class AcgamePlayground{
         this.root = root;
         this.$playground = $(`<div class = "ac_game_playground" ></div>`);
         this.hide();
-        
         this.start();
     }
 
@@ -841,6 +916,10 @@ class AcgamePlayground{
         this.height = unit*9;
         this.width = unit*16;
         this.scale=this.height;
+
+
+        this.real_width = this.real_height = 3;
+
     }
 
     show(mode)
@@ -849,13 +928,16 @@ class AcgamePlayground{
         let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();
+        this.player_cnt = 0;
+        this.state = "waiting";
         this.plays = [];
         this.GameMap = new GameMap(this);
+        this.notice_board = new NoticeBoard(this);
         this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
         if(mode === "danren")
-        {    
+        {
             for(let i = 0 ; i < 5 ;i++)
-                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai"));
+                this.plays.push(new Player(this,this.width/2/this.scale,0.5,0.15,0.05,this.get_random_color(),"ai",null,null,i));
         }
         else if (mode === "duoren")
         {
@@ -874,6 +956,10 @@ class AcgamePlayground{
     hide()
     {
         this.is_doing = false;
+
+       // Ac_Game_Objects.splice(0,Ac_Game_Objects.length);//无法返回界面
+
+       // console.log("关闭"+Ac_Game_Objects.length);
         this.$playground.hide();
     }
 
