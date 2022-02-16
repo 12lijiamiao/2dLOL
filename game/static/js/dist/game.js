@@ -1,3 +1,76 @@
+class ChooseCharacter{
+    constructor(root)
+    {
+        this.root = root;
+
+        this.$choose_character = $(`
+    <div class = "ac_game_choose_character">
+        <audio class="ac_game_choose_character_hutao" src="https://app730.acapp.acwing.com.cn/static/audio/choose_character/hutao.mp3" type="audio/mpeg"></audio>
+        <audio class="ac_game_choose_character_shenli" src="https://app730.acapp.acwing.com.cn/static/audio/choose_character/shenli.mp3" type="audio/mpeg""></audio>
+        <div class ="ac_game_choose_character_body">
+            <div class = "ac_game_choose_character_item">
+                角色选择
+            </div>
+            <div class = "ac_game_choose_character_image">
+                <div class = "ac_game_choose_character_image_item ac_game_choose_character_shenli">
+                    <img width = "70" src="https://app730.acapp.acwing.com.cn/static/image/choose_character/shenli.jpg">
+                </div>
+                &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;
+                <div class = "ac_game_choose_character_image_item ac_game_choose_character_hutao">
+                    <img width = "70" src="https://app730.acapp.acwing.com.cn/static/image/choose_character/hutao.png">
+                </div>
+            </div>
+        </div>
+    </div>
+`)
+        this.$choose_character_image_hutao = this.$choose_character.find(".ac_game_choose_character_hutao img");
+        this.$choose_character_image_shenli = this.$choose_character.find(".ac_game_choose_character_shenli img");
+
+        this.hide();
+
+        this.root.$ac_game.append(this.$choose_character);
+
+        this.$choose_character_bgm_hutao = document.getElementsByClassName('ac_game_choose_character_hutao')[0];
+        this.$choose_character_bgm_shenli = document.getElementsByClassName('ac_game_choose_character_shenli')[0];
+        this.start();
+    }
+    start()
+    {
+        this.add_events()
+    }
+
+    add_events()
+    {
+        let outer = this;
+        console.log(this.$choose_character_bgm_hutao);
+        this.$choose_character_image_hutao.mouseover(function()
+        {
+                outer.$choose_character_bgm_hutao.play();
+        });
+        
+        this.$choose_character_image_shenli.mouseover(function()
+        {
+               outer.$choose_character_bgm_shenli.play();
+        });
+        this.$choose_character_image_hutao.click(function(){
+            outer.hide();
+            outer.root.playground.show();
+        });
+        this.$choose_character_image_shenli.click(function(){
+            outer.hide();
+            outer.root.playground.show();
+        });
+    }
+
+    hide()
+    {
+        this.$choose_character.hide();
+    }
+    show()
+    {
+        this.$choose_character.show();
+    }
+}
 class AcgameMenu{
    constructor(root)
    {
@@ -38,11 +111,13 @@ class AcgameMenu{
        let outer = this;
        this.$dan.click(function(){
             outer.hide();
-            outer.root.playground.show("danren");
+            outer.root.playground.mode = "danren";
+            outer.root.choose_character.show();
        });
        this.$shuang.click(function(){
             outer.hide();
-            outer.root.playground.show("duoren");
+            outer.root.playground.mode = "duoren";
+            outer.root.choose_character.show();
        });
        this.$settings.click(function(){
            if(outer.root.settings.platform === "web")
@@ -164,7 +239,7 @@ class FireWorks extends AcGameObject {
         this.color = color;
         this.ctx = player.ctx;
 
-        this.eqs = 0.1;
+        this.eqs = 0.01;
     }
 
     update()
@@ -187,7 +262,9 @@ class FireWorks extends AcGameObject {
 
     render()
     {
-        if (this.playground.foucs) return false ;
+
+        if (!this.playground.foucs) return false ;
+        
 
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;
@@ -321,8 +398,8 @@ class MinMap extends AcGameObject
             let y= player.y;
             if (player.character === "me")
             {
-                this.ctx.lineWidth = this.playground.height * 0.01;
-                this.ctx.strokeStyle = "pink";
+                this.ctx.lineWidth = this.playground.height * 0.005;
+                this.ctx.strokeStyle = "rgba(115,87,92,1)";
                 let tx = x * scale - 0.5 * this.playground.width;
                 let ty = y * scale - 0.5 * this.playground.height;
                 if (tx < 0)
@@ -341,7 +418,7 @@ class MinMap extends AcGameObject
                 {
                     ty = this.playground.real_height * scale - this.playground.height;
                 }
-                this.ctx.strokeRect(tx/ 8 + this.x, ty/ 8 + this.y, this.playground.width  / 8, this.height / 8);
+                this.ctx.strokeRect(tx/ 8 + this.x, ty/ 8 + this.y, this.playground.width  / 8, this.playground.height / 8);
 
                 this.ctx.beginPath();
                 this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 + this.y,this.radius * scale / 8,0,Math.PI * 2 , false);
@@ -490,9 +567,9 @@ class Player extends AcGameObject
             for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
             {
                 let angle = Math.random()* Math.PI * 2;
-                let radius = 0.1;
-                let move_length = Math.random() * 0.15 ;
-                let speed = 0.10;
+                let radius = 0.005;
+                let move_length =  0.05 ;
+                let speed = 0.15;
                 new FireWorks(outer.playground,outer,tx,ty,"rgba(0,0,0,0.7)",radius,angle,move_length,speed);
 
             }
@@ -532,7 +609,7 @@ class Player extends AcGameObject
         for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
         {
             let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * 0.1;
+            let radius = Math.random() * 0.01;
             let move_length = Math.random() * 0.15 ;
             let speed = 0.15;
 
@@ -1177,9 +1254,8 @@ class AcgamePlayground{
 
     }
 
-    show(mode)
+    show()
     {
-        this.mode = mode;
         let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();
@@ -1192,12 +1268,12 @@ class AcgamePlayground{
         this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
         this.foucs = this.plays[0];
         this.min_map = new MinMap(this,this.GameMap.ctx);
-        if(mode === "danren")
+        if(this.mode === "danren")
         {
             for(let i = 0 ; i < 5 ;i++)
                 this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,this.get_random_color(),"ai",null,null,i));
         }
-        else if (mode === "duoren")
+        else if (this.mode === "duoren")
         {
             this.mps = new MultiplayerSocket(this);
             this.mps.uuid = this.plays[0].uuid;
@@ -1540,9 +1616,18 @@ export class AcGame{
         this.$ac_game = $('#' + id);
         this.acwingos = acwingos;
         this.settings = new AcgameSettings(this);
-
+        this.choose_character = new ChooseCharacter(this);
+        this.playground= new AcgamePlayground(this);
         this.menu = new AcgameMenu(this);
 
-        this.playground= new AcgamePlayground(this);
+        this.$menu_bgm_item=$(`
+<audio class="ac-game-menu-bgm" src="https://app730.acapp.acwing.com.cn/static/audio/menu/menu.mp3" preload="auto" autoplay="autoplay" loop="loop"></audio>
+`)
+        this.$menu_bgm= document.getElementsByClassName('ac-game-menu-bgm')[0];
+        this.$ac_game.append(this.$menu_bgm_item);
+        this.$menu_bgm_item.show();
     }
+
+
+
 }

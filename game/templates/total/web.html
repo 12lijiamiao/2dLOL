@@ -6,11 +6,12 @@
     <link rel="stylesheet" href="{% static 'css/game.css' %}">
 </head>
 <body style="margin: 0">
-    <div id="acs_game_123"></div>
+    <div id="acs_game_123">
+    </div>
     <script type = "module">
-            import {AcGame} from "{% static "js\dist\game.js" %}";
+        import {AcGame} from "{% static "js\dist\game.js" %}";
             $(document).ready(function(){
-                let acs_game = new AcGame("acs_game_123")
+                let acs_game = new AcGame("acs_game_123");
             });
     </script>
 </body>

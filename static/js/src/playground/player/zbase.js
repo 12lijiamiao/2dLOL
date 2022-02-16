@@ -102,9 +102,9 @@ class Player extends AcGameObject
             for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
             {
                 let angle = Math.random()* Math.PI * 2;
-                let radius = 0.1;
-                let move_length = Math.random() * 0.15 ;
-                let speed = 0.10;
+                let radius = 0.005;
+                let move_length =  0.05 ;
+                let speed = 0.15;
                 new FireWorks(outer.playground,outer,tx,ty,"rgba(0,0,0,0.7)",radius,angle,move_length,speed);
 
             }
@@ -144,7 +144,7 @@ class Player extends AcGameObject
         for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
         {
             let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * 0.1;
+            let radius = Math.random() * 0.01;
             let move_length = Math.random() * 0.15 ;
             let speed = 0.15;
 

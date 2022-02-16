@@ -38,11 +38,13 @@ class AcgameMenu{
        let outer = this;
        this.$dan.click(function(){
             outer.hide();
-            outer.root.playground.show("danren");
+            outer.root.playground.mode = "danren";
+            outer.root.choose_character.show();
        });
        this.$shuang.click(function(){
             outer.hide();
-            outer.root.playground.show("duoren");
+            outer.root.playground.mode = "duoren";
+            outer.root.choose_character.show();
        });
        this.$settings.click(function(){
            if(outer.root.settings.platform === "web")

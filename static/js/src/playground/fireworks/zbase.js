@@ -15,7 +15,7 @@ class FireWorks extends AcGameObject {
         this.color = color;
         this.ctx = player.ctx;
 
-        this.eqs = 0.1;
+        this.eqs = 0.01;
     }
 
     update()
@@ -38,7 +38,9 @@ class FireWorks extends AcGameObject {
 
     render()
     {
-        if (this.playground.foucs) return false ;
+
+        if (!this.playground.foucs) return false ;
+        
 
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;

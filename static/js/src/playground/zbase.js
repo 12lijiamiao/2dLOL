@@ -35,9 +35,8 @@ class AcgamePlayground{
 
     }
 
-    show(mode)
+    show()
     {
-        this.mode = mode;
         let outer = this;
         this.root.$ac_game.append(this.$playground);
         this.resize();
@@ -50,12 +49,12 @@ class AcgamePlayground{
         this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
         this.foucs = this.plays[0];
         this.min_map = new MinMap(this,this.GameMap.ctx);
-        if(mode === "danren")
+        if(this.mode === "danren")
         {
             for(let i = 0 ; i < 5 ;i++)
                 this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,this.get_random_color(),"ai",null,null,i));
         }
-        else if (mode === "duoren")
+        else if (this.mode === "duoren")
         {
             this.mps = new MultiplayerSocket(this);
             this.mps.uuid = this.plays[0].uuid;
