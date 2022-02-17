@@ -1,9 +1,8 @@
 class Player extends AcGameObject
 {
-    constructor(playground,x,y,speed,radius,color,character,username,photo,id)
+    constructor(playground,x,y,speed,radius,color,character,username,photo,id,work)
     {
         super();
-        playground.player_cnt ++;
         this.playground = playground;
         this.color = color;
         this.x= x;
@@ -27,25 +26,63 @@ class Player extends AcGameObject
         this.username = username;
         this.id = id;
         this.fireballs=[];
-
         if (this.character !== "ai") {
             this.img = new Image();
             this.img.src = this.photo;
+            this.work = work;
+            this.skill_d = null;
+            this.skill_d_coldtime=8;
+            this.skill_r = null;
+            this.skill_r_coldtime=8;
+
+            if (this.work === "hutao")
+            {
+
+            }
+            else if (this.work === "shenli")
+            {
+            }
+        }
+        else
+        {
+            this.img=new Image();
+            this.img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/renji.jpg";
         }
 
 
         this.f = 0.9;
 
     }
+    
+    search_id()
+    {
+        let cnt = [0,0,0,0,0,0];
+        for (let i=0 ;i<this.playground.plays.length; i++)
+        {
+            let player = this.playground.plays[i];
+            cnt[player.id]++;
+        }
+
+        for(let i = 0;i<6 ;i++)
+        {
+            if (!cnt[i])
+            {
+                this.playground.plays[0].id = i ;
+                break;
+            }
+        }
+    }
 
     start()
     {
+        this.playground.player_cnt ++;
         this.playground.notice_board.write("已就绪 ："+this.playground.player_cnt +"人");
 
         if(this.playground.player_cnt >= 3)
         {
             this.playground.state = "fighting";
             this.playground.notice_board.write("Fighting");
+            this.search_id();
         }
 
         if(this.character === "me")
@@ -71,9 +108,15 @@ class Player extends AcGameObject
             if(e.which === 81)
                 outer.cur_skill = "fireball";
             else if(e.which === 82)
-                outer.all_shoot_fireball();
+            {
+                if (outer.work === "hutao")
+                    outer.all_shoot_fireball();
+
+            }
             else if(e.which === 70)
                 outer.cur_skill = "flash";
+            else if(e.which === 68)
+                outer.skill_d = "ready";
 
         });
 
@@ -121,12 +164,12 @@ class Player extends AcGameObject
             {
                 if(outer.cur_skill === "fireball")
                 {
-                    let fireball = outer.shoot_fireball(tx,ty);
+                    let fireball = outer.shoot_fireball(tx,ty,0.8,"rgba(250,93,25,0.8)");
                     outer.cur_skill =null;
 
                     if (outer.playground.mode === "duoren")
                     {
-                        outer.playground.mps.send_fireball(tx,ty,fireball.uuid);
+                        outer.playground.mps.send_fireball(tx,ty,fireball.uuid,"fireball");
                     }
 
                 }
@@ -135,11 +178,24 @@ class Player extends AcGameObject
                     outer.flash_angle = Math.atan2(ty - outer.y ,tx - outer.x);
                     outer.is_flash = true;
                 }
+                else if (outer.skill_d === "ready")
+                {
+                    if (outer.work === "shenli")
+                    {
+                        let greenarrow = outer.shoot_greenarrow(tx,ty);
+                        outer.skill_d =null;
+
+                        if (outer.playground.mode === "duoren")
+                        {
+                            outer.playground.mps.send_fireball(tx,ty,greenarrow.uuid,"greenarrow");
+                        }
+                    }
+                }
             }
         });
     }
 
-    attacked(angle , damage)
+    attacked(angle , damage,attackee,events)
     {
         for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
         {
@@ -151,35 +207,54 @@ class Player extends AcGameObject
             new FireWorks(this.playground,this,this.x,this.y,this.color,radius,angle,move_length,speed);
 
         }
-
         this.radius -= damage;
         if(this.radius < this.esp)
         {
+
+            if (attackee.character === "me")
+            {
+                new GameBoard(this.playground,attackee.img,this.img,"rgba(27,167,132,0.7)");
+            }
+            else
+            {
+                new GameBoard(this.playground,attackee.img,this.img,"rgba(191,53,83,0.7)");
+            }
+
             this.destory();
             return false;
         }
+        if(events === "fireball")
+        {
+            this.speed *= this.f;
+            this.damage_speed = damage * 80;
 
-        this.speed *= this.f;
-        this.damage_speed = damage * 80;
-
-        this.damage_vx = Math.cos(angle);
-        this.damage_vy = Math.sin(angle);
+            this.damage_vx = Math.cos(angle);
+            this.damage_vy = Math.sin(angle);
+        }
     }
 
-    receive_attacked(attackee,ball_uuid,angle,damage,x,y)
+    receive_attacked(attackee,ball_uuid,angle,damage,x,y,events)
     {
-        attackee.fireball_destory(ball_uuid);
-        console.log(ball_uuid);
+        if(events === "fireball")
+            attackee.fireball_destory(ball_uuid);
 
         this.x = x;
         this.y = y;
-        this.attacked(angle,damage);
+        this.attacked(angle,damage,attackee,events);
     }
 
-    shoot_fireball( tx , ty)
+    shoot_greenarrow(tx,ty)
+    {
+        let color = "rgb(254,215,26,0.7)";
+        let angle = Math.atan2(ty-this.y,tx-this.x);
+        let speed = 1.5;
+        let move_length = 0.85;
+        return new GreenArrow(this.playground,this,this.x,this.y,speed,move_length,angle,color);
+    }
+
+    shoot_fireball( tx , ty,speed,color)
     {
         let angle = Math.atan2(ty-this.y,tx-this.x);
-        let speed = 0.5;
         let move_length = 0.8;
         let radius =  0.01;
         return new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
@@ -190,10 +265,17 @@ class Player extends AcGameObject
         for(let i = 0 ; i < 10; i++)
         {
             let angle = (Math.PI * 2)/10*i;
-            let speed = 0.5;
-            let move_length = 0.8;
-            let radius = 0.01;
-            new FireBall(this.playground,this,this.x,this.y,speed,angle,move_length,radius);
+
+            let tx = this.x + Math.cos(angle);
+            let ty = this.y + Math.sin(angle);
+
+            let speed = 0.8;
+            let color = "rgba(250,93,25,0.8)";
+            let fireball =this.shoot_fireball(tx,ty,speed,color);
+            if (this.playground.mode === "duoren")
+            {
+                this.playground.mps.send_fireball(tx,ty,fireball.uuid,"fireball");
+            }
         }
     }
 
@@ -435,7 +517,6 @@ class Player extends AcGameObject
             let fireball = this.fireballs[i];
             if (fireball.uuid === uuid)
             {
-                console.log("yes");
                 fireball.destory();
                 break;
             }

@@ -46,7 +46,7 @@ class AcgamePlayground{
         this.plays = [];
         this.GameMap = new GameMap(this);
         this.notice_board = new NoticeBoard(this);
-        this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo));
+        this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo,null,this.work));
         this.foucs = this.plays[0];
         this.min_map = new MinMap(this,this.GameMap.ctx);
         if(this.mode === "danren")
@@ -61,7 +61,7 @@ class AcgamePlayground{
 
             this.mps.ws.onopen = function()
             {
-                outer.mps.send_create_player(outer.root.settings.username,outer.root.settings.photo);
+                outer.mps.send_create_player(outer.root.settings.username,outer.root.settings.photo,outer.work);
             };
 
         }

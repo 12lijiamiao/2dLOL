@@ -18,7 +18,7 @@ class GameMap extends AcGameObject{
 
     create_walls()
     {
-        let color = "white";
+        let color = "rgba(255,255,255,0.5)";
         let unit = this.playground.real_width / 20;
         for( let i = 0 ;i < 20; i++)
         {

@@ -25,7 +25,7 @@ class MultiplayerSocket{
 
             let event = data.event;
             if(event=== "create_player"){
-                outer.receive_create_player(uuid,data.username,data.photo,data.id);
+                outer.receive_create_player(uuid,data.username,data.photo,data.id,data.work);
             }
             else if (event === "move_to")
             {
@@ -33,11 +33,11 @@ class MultiplayerSocket{
             }
             else if (event === "fireball")
             {
-                outer.receive_fireball(uuid,data.tx,data.ty,data.ball_uuid);
+                outer.receive_fireball(uuid,data.tx,data.ty,data.ball_uuid,data.events);
             }
             else if (event === "attack")
             {
-                outer.receive_attack(uuid,data.attacked_uuid,data.ball_uuid,data.damage,data.angle,data.x,data.y)
+                outer.receive_attack(uuid,data.attacked_uuid,data.ball_uuid,data.damage,data.angle,data.x,data.y,data.events);
             }
             else if (event === "flash")
             {
@@ -57,7 +57,7 @@ class MultiplayerSocket{
         }
         return null;
     }
-    send_create_player(username,photo){
+    send_create_player(username,photo,work){
 
         let outer = this;
         this.ws.send(JSON.stringify({
@@ -65,10 +65,11 @@ class MultiplayerSocket{
             'uuid':outer.uuid,
             'username':username,
             'photo':photo,
+            'work':work,
         }));
     }
 
-    receive_create_player(uuid,username,photo,id)
+    receive_create_player(uuid,username,photo,id,work)
     {
         let player = new Player(
             this.playground,
@@ -81,6 +82,7 @@ class MultiplayerSocket{
             username,
             photo,
             id,
+            work
         )
 
         player.uuid = uuid;
@@ -103,7 +105,7 @@ class MultiplayerSocket{
 
         if(player) player.move_to(tx,ty);
     }
-    send_fireball(tx,ty,ball_uuid)
+    send_fireball(tx,ty,ball_uuid,events)
     {
         let outer = this;
         this.ws.send(JSON.stringify({
@@ -112,19 +114,27 @@ class MultiplayerSocket{
             'tx':tx,
             'ty':ty,
             'ball_uuid':ball_uuid,
+            'events':events,
         }));
     }
-    receive_fireball(uuid,tx,ty,ball_uuid)
+    receive_fireball(uuid,tx,ty,ball_uuid,events)
     {
         let player = this.search_player(uuid);
-
         if (player)
         {
-            let fireball = player.shoot_fireball(tx,ty);
-            fireball.uuid = ball_uuid;
+            if(events === "fireball")
+            {
+                let fireball = player.shoot_fireball(tx,ty,0.8,"rgba(250,93,25,0.8)");
+                fireball.uuid = ball_uuid;
+            }
+            else if (events === "greenarrow")
+            {
+                let greenarrow = player.shoot_greenarrow(tx,ty);
+                greenarrow.uuid = ball_uuid;
+            }
         }
     }
-    send_attack(attacked_uuid,ball_uuid,damage,angle,x,y)
+    send_attack(attacked_uuid,ball_uuid,damage,angle,x,y,events)
     {
 
         let outer = this;
@@ -138,16 +148,16 @@ class MultiplayerSocket{
             'angle':angle,
             'x':x,
             'y':y,
+            'events':events,
         }));
     }
 
-    receive_attack(attackee_uuid,attacked_uuid,ball_uuid,damage,angle,x,y)
+    receive_attack(attackee_uuid,attacked_uuid,ball_uuid,damage,angle,x,y,events)
     {
-        
         let attackee = this.search_player(attackee_uuid);
         let attacked = this.search_player(attacked_uuid);
-        
-        if (attackee && attacked) attacked.receive_attacked(attackee,ball_uuid,angle,damage,x,y);
+
+        if (attackee && attacked) attacked.receive_attacked(attackee,ball_uuid,angle,damage,x,y,events);
     }
 
     send_flash(angle)

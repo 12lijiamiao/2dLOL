@@ -1,6 +1,6 @@
 class FireBall extends AcGameObject
 {
-    constructor(playground,player, x ,y , speed, angle,move_length,radius)
+    constructor(playground,player, x ,y , speed, angle,move_length,radius,color)
     {
         super();
         this.angle = angle;
@@ -15,6 +15,7 @@ class FireBall extends AcGameObject
         this.radius = radius;
         this.damage = 0.01;
         this.player.fireballs.push(this);
+        this.color = color;
 
         this.vx = Math.cos(angle);
         this.vy = Math.sin(angle);
@@ -52,15 +53,15 @@ class FireBall extends AcGameObject
         return false;
     }
 
-    attack(player)
+    attack(player,attackee_player)
     {
         let angle = Math.atan2(player.y-this.y,player.x-this.x);
 
-        player.attacked(angle,this.damage);
+        player.attacked(angle,this.damage,attackee_player,"fireball");
 
         if (this.playground.mode ==="duoren")
         {
-            this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y);
+            this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y,"fireball");
 
         }
         this.destory();
@@ -91,7 +92,7 @@ class FireBall extends AcGameObject
             let player = this.playground.plays[i];
             if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius))
             {
-                this.attack(player);
+                this.attack(player,this.player);
             }
         }
 
@@ -109,6 +110,17 @@ class FireBall extends AcGameObject
             this.update_attack();
         }
         this.update_move();
+
+        for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
+        {
+            let angle = Math.random()*Math.PI*2;
+            let radius = Math.random() * 0.005;
+            let move_length = Math.random() * 0.05 ;
+            let speed = 0.15;
+
+            new FireWorks(this.playground,this,this.x,this.y,this.color,radius,angle,move_length,speed);
+
+        }
         this.render();
     }
 
@@ -119,7 +131,7 @@ class FireBall extends AcGameObject
         let scale = this.playground.scale;
         this.ctx.beginPath();
         this.ctx.arc(x * scale,y * scale ,this.radius * scale,0,Math.PI * 2, false);
-        this.ctx.fillStyle = "orange";
+        this.ctx.fillStyle = this.color;
         this.ctx.fill();
     }
 

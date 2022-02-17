@@ -54,10 +54,12 @@ class ChooseCharacter{
         });
         this.$choose_character_image_hutao.click(function(){
             outer.hide();
+            outer.root.playground.work = "hutao";
             outer.root.playground.show();
         });
         this.$choose_character_image_shenli.click(function(){
             outer.hide();
+            outer.root.playground.work = "shenli";
             outer.root.playground.show();
         });
     }

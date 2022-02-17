@@ -16,9 +16,9 @@ class NoticeBoard extends AcGameObject {
     }
     render()
     {
-        this.ctx.font = "20px serif";
-        this.ctx.fillStyle="white";
+        this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+        this.ctx.fillStyle="rgba(45,12,19,1)";
         this.ctx.textAlign = "center";
-        this.ctx.fillText(this.text,this.playground.width/2,20);
+        this.ctx.fillText(this.text,this.playground.width/2,this.playground.height*0.1);
     }
 }

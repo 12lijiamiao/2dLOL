@@ -29,7 +29,8 @@ class MultiPlayer(AsyncWebsocketConsumer):
                     'uuid':player['uuid'],
                     'username':player['username'],
                     'photo':player['photo'],
-                    'id':player['id']
+                    'id':player['id'],
+                    'work':player['work'],
                 }))
 
         await self.channel_layer.group_add(self.room_name, self.channel_name)
@@ -45,6 +46,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
                 'username':data['username'],
                 'photo':data['photo'],
                 'id':len(players),
+                'work':data['work'],
             })
         cache.set(self.room_name,players,3600)
 
@@ -57,6 +59,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
                     'username':data['username'],
                     'photo':data['photo'],
                     'id':len(players)-1,
+                    'work':data['work'],
                 }
             )
 
@@ -81,6 +84,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
                         'tx':data['tx'],
                         'ty':data['ty'],
                         'ball_uuid':data['ball_uuid'],
+                        'events':data['events'],
                     }
                 )
     async def attack(self, data):
@@ -96,6 +100,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
                     'damage':data["damage"],
                     'x':data["x"],
                     'y':data['y'],
+                    'events':data["events"],
                 }
             )
     async def flash(self,data):
