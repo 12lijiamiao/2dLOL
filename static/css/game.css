@@ -1,3 +1,7 @@
+*{
+    padding : 0;
+    margin: 0;
+}
 .ac_game_settings{
     width:100%;
     height:100%;
@@ -14,15 +18,80 @@
     background-size : 100% 100%;
     user-select: none;
 }
+.ac_game_choose_character_total{
+    width:100%;
+    height:100%;
+    display:flex;
+    display: -webkit-flex
+}
+.ac_game_item{
+    flex:1;
+    height:100%;
+}
+
+.ac_game_character_right{
+    height:50vh;
+    width:25vw;
+    position:relative;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background-color : rgba(0,0,0,0.7);
+}
+.ac_game_character_left{
+    height:50vh;
+    width:25vw;
+    position:relative;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background-color : rgba(0,0,0,0.7);
+}
+
+.ac_game_character_title
+{
+    color :white;
+    font-size: 3vh;
+    text-align:center;
+    padding-top:2vh;
+}
+
+.ac_game_character_skill
+{
+    display:flex;
+    height:10vh;
+    width:100%;
+    align-items:center;
+    justify-content:center;
+}
+.ac_game_character_skill > img
+{
+    position:relative;
+    top:50%;
+    transform:translate(0,-50%);
+    background-color : rgba(0,0,0,0.7);
+    border-radius:5px ;
+
+    padding-left:4vw;
+}
+
+.ac_game_character_skill > div
+{
+    color :white;
+    font-size: 1vh;
+    text-align:center;
+    padding-right:3vw;
+}
+
 .ac_game_choose_character_body{
     height: 27vh;
     width: 25vw;
-    position: relative;
-    top : 50%;
-    left: 50%;
-    transform:translate(-50%,-50%);
     background-color:rgba(0,0,0,0.7);
     border-radius: 5px;
+    position:relative;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
 }
 .ac_game_choose_character_item
 {

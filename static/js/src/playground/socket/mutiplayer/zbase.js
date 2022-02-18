@@ -132,6 +132,15 @@ class MultiplayerSocket{
                 let greenarrow = player.shoot_greenarrow(tx,ty);
                 greenarrow.uuid = ball_uuid;
             }
+            else if (events === "guangdun")
+            {
+                player.skill_r_time = 3;
+            }
+            else if (events === "cureball")
+            {
+                let cureball = player.shoot_cureball(tx,ty);
+                cureball.uuid = ball_uuid;
+            }
         }
     }
     send_attack(attacked_uuid,ball_uuid,damage,angle,x,y,events)

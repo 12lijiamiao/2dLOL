@@ -19,9 +19,29 @@ class GreenArrow extends AcGameObject
         this.speed = speed;
         this.damage =0.01;
         this.player = player;
+        this.player.greenarrows.push(this);
 
         this.plan_player =[];
         this.esp = 0.01;
+    }
+
+    is_mode(player)
+    {
+        if (this.playground.mode === "duoren")
+        {
+            if (player.id % 2 !== this.player.id % 2)
+            {
+                return true;
+            }
+        }
+        else if (this.playground.mode === "danren")
+        {
+            if (player !== this.player)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     start()
@@ -58,6 +78,9 @@ class GreenArrow extends AcGameObject
             //player.is_flash = true;
            // player.flash_angle = this.angle + Math.PI / 2;
         //}
+        
+        if (player.skill_r_time > this.esp && distance < 0.2)
+            return true;
         if(distance < tr )
             return true;
         return false;
@@ -67,13 +90,17 @@ class GreenArrow extends AcGameObject
     {
         let angle = Math.atan2(player.y-this.now_y,player.x-this.now_x);
 
-        player.attacked(angle,this.damage,attackee_player,"greenarrow");
+        if (player.skill_r_time < this.esp)
+            player.attacked(angle,this.damage,attackee_player,"greenarrow");
 
         if (this.playground.mode ==="duoren")
         {
             this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y,"greenarrow");
 
         }
+
+        if (player.skill_r_time > this.esp)
+            this.destory();
     }
 
     update_attack()
@@ -82,7 +109,7 @@ class GreenArrow extends AcGameObject
         {
             let player = this.playground.plays[i];
             
-            if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius) && this.plan_player[i] === "0")
+            if(this.is_mode(player) && this.is_attack(player,player.x , player.y , player.radius) && this.plan_player[i] === "0")
             {
                 this.attack(player,this.player);
                 this.plan_player[i] = "1";
@@ -104,18 +131,6 @@ class GreenArrow extends AcGameObject
         }
 
         this.update_move();
-        
-
-        for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
-        {
-            let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * 0.005;
-            let move_length = Math.random() * 0.05 ;
-            let speed = 0.15;
-
-            new FireWorks(this.playground,this,this.now_x,this.now_y,this.color,radius,angle,move_length,speed);
-
-        }
 
         this.render();
     }
@@ -153,6 +168,18 @@ class GreenArrow extends AcGameObject
 
         this.ctx.stroke();
         this.ctx.closePath();
+    }
+    on_destory()
+    {
+        for (let i =0 ;i<this.player.greenarrows.length;i++)
+        {
+            let greenarrow =this.player.greenarrows[i];
+            if(greenarrow === this)
+            {
+                this.player.greenarrows.splice(i, 1);
+                break;
+            }
+        }
     }
 
 }

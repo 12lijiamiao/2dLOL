@@ -10,7 +10,7 @@ class MultiPlayer(AsyncWebsocketConsumer):
 
         for i in range(1000):
             name = "room-%d" % (i)
-            if not cache.has_key(name) or len(cache.get(name)) < 3:
+            if not cache.has_key(name) or len(cache.get(name)) < 4:
                 self.room_name = name
                 break
 

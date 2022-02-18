@@ -6,11 +6,27 @@ class MinMap extends AcGameObject
         this.playground = playground;
         this.ctx = ctx;
         this.radius = 0.1;
+        this.id = null;
     }
 
     update()
     {
         this.render();
+    }
+
+    is_mode (player)
+    {
+        if (this.playground.mode === "duoren" && this.id)
+        {
+            if (player.id % 2 === this.id)
+                return true;
+        }
+        else
+        {
+            if (player.character === "me")
+                return true;
+        }
+        return false;
     }
 
     render()
@@ -21,7 +37,7 @@ class MinMap extends AcGameObject
 
         let scale = this.playground.scale;
         this.ctx.fillStyle = "rgba(0,0,0,0.4)";
-        this.ctx.fillRect(this.playground.width - x * scale,this.playground.height - y * scale,x * scale,y * scale);
+        this.ctx.fillRect(this.playground.width - x * scale,0,x * scale,y * scale);
         this.x = this.playground.width - this.playground.real_width / 8 * this.playground.scale;
         this.y = this.playground.height - this.playground.real_height / 8 * this.playground.scale;
    
@@ -55,17 +71,19 @@ class MinMap extends AcGameObject
                 {
                     ty = this.playground.real_height * scale - this.playground.height;
                 }
-                this.ctx.strokeRect(tx/ 8 + this.x, ty/ 8 + this.y, this.playground.width  / 8, this.playground.height / 8);
-
+                this.ctx.strokeRect(tx/ 8 + this.x, ty/ 8, this.playground.width  / 8, this.playground.height / 8);
+            }
+            if (this.is_mode(player))
+            {
                 this.ctx.beginPath();
-                this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 + this.y,this.radius * scale / 8,0,Math.PI * 2 , false);
+                this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 ,this.radius * scale / 8,0,Math.PI * 2 , false);
                 this.ctx.fillStyle = "green";
                 this.ctx.fill();
             }
             else
             {
                 this.ctx.beginPath();
-                this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 + this.y,this.radius * scale / 8,0,Math.PI * 2 , false);
+                this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 ,this.radius * scale / 8,0,Math.PI * 2 , false);
                 this.ctx.fillStyle = "red";
                 this.ctx.fill();
             }

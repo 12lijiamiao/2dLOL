@@ -31,6 +31,20 @@ class FireBall extends AcGameObject
         return false;
     }
 
+    is_mode(player)
+    {
+        if (this.playground.mode === "duoren")
+        {
+            if (player.id % 2 !== this.player.id % 2)
+                return true;
+        }
+        else if (this.playground.mode === "danren")
+        {
+            if (player !== this.player)
+                return true;
+        }
+    }
+
     get_distance(x1,y1,x2,y2)
     {
         let dx = x2-x1;
@@ -48,6 +62,10 @@ class FireBall extends AcGameObject
             player.is_flash = true;
             player.flash_angle = this.angle + Math.PI / 2;
         }
+
+        if (player.skill_r_time > this.esp && distance < 0.2 + this.radius)
+            return true;
+
         if(distance < tr +this.radius)
             return true;
         return false;
@@ -56,8 +74,9 @@ class FireBall extends AcGameObject
     attack(player,attackee_player)
     {
         let angle = Math.atan2(player.y-this.y,player.x-this.x);
-
-        player.attacked(angle,this.damage,attackee_player,"fireball");
+        
+        if(player.skill_r_time < this.esp)
+            player.attacked(angle,this.damage,attackee_player,"fireball");
 
         if (this.playground.mode ==="duoren")
         {
@@ -90,7 +109,7 @@ class FireBall extends AcGameObject
         for(let i = 0 ; i < this.playground.plays.length ; i++)
         {
             let player = this.playground.plays[i];
-            if(player !== this.player && this.is_attack(player,player.x , player.y , player.radius))
+            if( this.is_mode(player) && this.is_attack(player,player.x , player.y , player.radius))
             {
                 this.attack(player,this.player);
             }
@@ -99,6 +118,16 @@ class FireBall extends AcGameObject
     }
     update()
     {
+        for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
+        {
+            let angle = Math.random()*Math.PI*2;
+            let radius = Math.random() * 0.005;
+            let move_length = Math.random() * 0.05 ;
+            let speed = 0.15;
+
+            new FireWorks(this.playground,this,this.x,this.y,this.color,radius,angle,move_length,speed);
+
+        }
         if (this.out_of_map(this.x,this.y))
         {
             this.destory();
@@ -111,16 +140,6 @@ class FireBall extends AcGameObject
         }
         this.update_move();
 
-        for(let i = 0 ;i < Math.random()*20 + 10 ;i++)
-        {
-            let angle = Math.random()*Math.PI*2;
-            let radius = Math.random() * 0.005;
-            let move_length = Math.random() * 0.05 ;
-            let speed = 0.15;
-
-            new FireWorks(this.playground,this,this.x,this.y,this.color,radius,angle,move_length,speed);
-
-        }
         this.render();
     }
 
