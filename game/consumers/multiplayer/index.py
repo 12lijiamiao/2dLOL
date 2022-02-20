@@ -113,6 +113,17 @@ class MultiPlayer(AsyncWebsocketConsumer):
                     'angle':data["angle"],
                 }
             )
+    async def chat(self,data):
+        await self.channel_layer.group_send(
+                self.room_name,{
+                    'type':"group_send",
+                    'event':"chat",
+                    'uuid':data['uuid'],
+                    'massage':data['massage'],
+                    'id':data['id'],
+                    'mode':data['mode'],
+                }
+            )
     async def group_send(self,data):
         await self.send(text_data=json.dumps(data))
 
@@ -128,3 +139,5 @@ class MultiPlayer(AsyncWebsocketConsumer):
             await self.attack(data)
         elif data['event'] == 'flash':
             await self.flash(data)
+        elif data['event'] == 'chat':
+            await self.chat(data)

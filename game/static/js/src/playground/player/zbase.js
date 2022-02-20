@@ -119,6 +119,7 @@ class Player extends AcGameObject
                 }
 
                 this.playground.min_map.id = this.playground.plays[0].id % 2;
+                this.playground.chatitem.player_id = this.playground.plays[0].id % 2;
             }
         }
 
@@ -131,7 +132,7 @@ class Player extends AcGameObject
             let tx = Math.random() * this.playground.real_width;
             let ty = Math.random() * this.playground.real_height;
 
-            this.move_to(tx,ty);
+            this.move_to(tx,ty);;
         }
     }
 
@@ -139,9 +140,24 @@ class Player extends AcGameObject
     {
         let outer = this;
 
-        $(window).keydown(function(e){
+        this.playground.GameMap.$canvas.keydown(function(e){
+
+            if (outer.playground.mode === "duoren")
+            {
+                if (e.which === 13)
+                {
+                    outer.playground.chatitem.show_input();
+                    return false;
+                }
+                else if (e.which === 27)
+                {
+                    outer.playground.chatitem.hide_input();
+                    return false;
+                }
+            }
+            
             if(outer.playground.state !== "fighting")
-                return false;
+                return true;
             if(e.which === 81 && outer.fireball_coldtime < outer.esp)
                 outer.cur_skill = "fireball";
             else if(e.which === 82 && outer.skill_r_coldtime < outer.esp)
@@ -325,7 +341,10 @@ class Player extends AcGameObject
             new FireWorks(this.playground,this,x,y,this.color,radius,angle,move_length,speed);
         }
         if (this.radius < 0.05)
+        {
             this.radius += damage;
+            this.speed *=1.1;
+        }
 
     }
 
@@ -464,7 +483,7 @@ class Player extends AcGameObject
         if (this.fireball_coldtime > this.esp)
             this.fireball_coldtime -= this.timedate/1000;
         else
-            this.fireball_codetime =0;
+            this.fireball_coldtime =0;
 
         if (this.flash_coldtime > this.esp)
             this.flash_coldtime -= this.timedate/1000;
@@ -644,6 +663,7 @@ class Player extends AcGameObject
         let skill_radius = 0.05 * this.playground.height;
 
         let scale = this.playground.height ;
+        let  d = scale *0.02;
         this.ctx.fillStyle = "rgba(0,0,0,0.4)";
         this.ctx.fillRect(0.5* this.playground.width - this.playground.height * 0.15,this.playground.height * 0.86,this.playground.height *0.5,this.playground.height *0.14);
 
@@ -663,6 +683,14 @@ class Player extends AcGameObject
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
 
+        if (!this.fireball_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("Q",x,y+d);
+        }
+
         //flash
         x += scale * 0.12;
         this.ctx.save();
@@ -677,6 +705,14 @@ class Player extends AcGameObject
         this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.flash_coldtime / 4 * Math.PI * 2 - Math.PI / 2, true);
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
+
+        if (!this.flash_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("F",x,y+d);
+        }
 
         //skill_r
         x += scale * 0.12;
@@ -693,6 +729,13 @@ class Player extends AcGameObject
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
 
+        if (!this.skill_r_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("R",x,y+d);
+        }
         //skill_d
         x += scale * 0.12;
         this.ctx.save();
@@ -706,7 +749,14 @@ class Player extends AcGameObject
         this.ctx.moveTo(x, y);
         this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_d_coldtime / 8 * Math.PI * 2 - Math.PI / 2, true);
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
-        this.ctx.fill();
+        this.ctx.fill(); 
+        if (!this.skill_d_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("D",x,y+d);
+        }
     }
 
     on_destory()

@@ -4,7 +4,7 @@ class GameMap extends AcGameObject{
         super();
         this.playground = playground;
 
-        this.$canvas = $(`<canvas></canvas>`);
+        this.$canvas = $(`<canvas tabindex = 0></canvas>`);
         this.ctx = this.$canvas[0].getContext('2d');
         this.playground.$playground.append(this.$canvas);
         this.walls= [];
@@ -13,6 +13,7 @@ class GameMap extends AcGameObject{
 
     start()
     {
+        this.$canvas.focus();
         this.create_walls();
     }
 

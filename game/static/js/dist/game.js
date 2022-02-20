@@ -119,26 +119,25 @@ class ChooseCharacter{
     add_events()
     {
         let outer = this;
-        console.log(this.$choose_character_bgm_hutao);
         this.$choose_character_image_hutao.mouseover(function()
         {
                 outer.$choose_character_bgm_hutao.play();
-                outer.$character_right.show();
+                outer.$character_right.fadeIn();
 
         });
         this.$choose_character_image_hutao.mouseout(function(){
-                outer.$character_right.hide();
+                outer.$character_right.fadeOut();
         })
         
 
         this.$choose_character_image_shenli.mouseover(function()
         {
                outer.$choose_character_bgm_shenli.play();
-               outer.$character_left.show();
+               outer.$character_left.fadeIn();
         });
 
         this.$choose_character_image_shenli.mouseout(function(){
-               outer.$character_left.hide();
+               outer.$character_left.fadeOut();
         });
         this.$choose_character_image_hutao.click(function(){
             outer.hide();
@@ -314,6 +313,161 @@ requestAnimationFrame(Ac_Game_Animation);
 
 
 
+class ChatItem 
+{
+    constructor(playground)
+    {
+        this.playground =playground;
+
+        this.$history = $(`<div class="ac_game_chatitem_history">历史记录</div>`);
+        this.$input =$(`<input type ="text" class ="ac_game_chatitem_input">`);
+        this.id = null;
+        this.$history.hide();
+        this.$input.hide();
+        this.mode = 0;
+        this.playground.$playground.append(this.$history);
+        this.playground.$playground.append(this.$input);
+        this.player_id = -1;
+
+        this.start()
+    }
+
+    start()
+    {
+        this.add_events();
+        this.resize();
+    }
+
+    add_events()
+    {
+
+        let outer= this;
+        this.$input.keydown(function(e){
+            if (e.which === 27)
+            {
+                outer.hide_input();
+            }
+            else if (e.which === 13)
+            {
+                let text = outer.$input.val();
+                if (text && outer.player_id !== -1)
+                {
+                    console.log(outer.player_id);
+                    outer.$input.val("");
+                    let massage = outer.write_massage(text,outer.mode);
+                    outer.render_massage(massage);
+                    outer.playground.mps.send_chat(massage,outer.player_id,outer.mode);
+                }
+            }
+            else if (e.which === 17)
+            {
+                outer.mode =(outer.mode + 1) % 2;
+            }
+        });
+
+
+        this.$history.mousedown(function(e){
+            let player = outer.playground.plays[0];
+            if (player.character ==="me")
+            {
+                const rect = player.ctx.canvas.getBoundingClientRect();
+                let tx = ( e.clientX - rect.left ) / outer.playground.scale + player.x - 0.5*outer.playground.width / outer.playground.scale;
+                let ty = ( e.clientY - rect.top ) / outer.playground.scale + player.y - 0.5;
+
+                if(e.which === 3 )
+                {
+                    player.move_to(tx,ty);
+                    outer.playground.mps.send_move_to(tx,ty);
+                }
+            }
+        });
+    }
+
+    resize()
+    {
+        this.width = this.playground.width * 0.2;
+        this.history_height = this.playground.height * 0.3;
+
+        this.margin_left = (this.playground.$playground.width() - this.playground.width) / 2 + this.playground.height * 0.02;
+        this.history_top = (this.playground.$playground.height() - this.playground.height) / 2 + this.playground.height / 2;
+        this.input_top = this.history_top + 0.02 * this.playground.height + this.history_height;
+        this.$history.css({
+            "position": "absolute",
+            "width": this.width,
+            "height": this.history_height,
+            "left": this.margin_left,
+            "top": this.history_top,
+
+            "color": "white",
+            "font-size":  "2vh",
+            "overflow": "auto",
+            "background-color": "rgba(0, 0, 0, 0.3)",
+            "border-radius":"5px",
+        });
+
+        this.$input.css({
+            "position": "absolute",
+            "width": this.width,
+            "height": "3vh",
+            "left": this.margin_left,
+            "top": this.input_top,
+
+            "color": "white",
+            "font-size":  "2vh",
+            "background-color": "rgba(0, 0, 0, 0.3)",
+        });
+
+    }
+
+
+    show_input()
+    {
+        this.$input.show();
+        this.$input.focus();
+
+        this.show_history();
+    }
+
+    hide_input()
+    {
+        this.$input.hide();
+        this.playground.GameMap.$canvas.focus();
+    }
+
+    render_massage(text)
+    {
+        this.$history.append(text);
+        this.$history.scrollTop(this.$history[0].scrollHeight);
+        this.show_history();
+    }
+
+    write_massage(text,mode)
+    {
+        let username = this.playground.root.settings.username;
+        let massage =null;
+        if (mode === 0)
+            massage = `[[基友]${username}]:${text}`;
+        else if(mode === 1)
+            massage = `[[全体]${username}]:${text}`;
+
+        let div_massage = `<div>${massage}</div>`
+        return div_massage;
+    }
+
+    show_history()
+    {
+        this.$history.fadeIn();
+
+        if (this.id) clearTimeout(this.id);
+
+        let outer = this;
+        this.id = setTimeout(function(){
+            outer.$history.fadeOut();
+            outer.id = null;
+        },3000);
+    }
+
+}
 class FireWorks extends AcGameObject {
     constructor(playground,player,x,y, color , radius, angle , move_length, speed)
     {
@@ -408,7 +562,7 @@ class GameMap extends AcGameObject{
         super();
         this.playground = playground;
 
-        this.$canvas = $(`<canvas></canvas>`);
+        this.$canvas = $(`<canvas tabindex = 0></canvas>`);
         this.ctx = this.$canvas[0].getContext('2d');
         this.playground.$playground.append(this.$canvas);
         this.walls= [];
@@ -417,6 +571,7 @@ class GameMap extends AcGameObject{
 
     start()
     {
+        this.$canvas.focus();
         this.create_walls();
     }
 
@@ -519,7 +674,7 @@ class MinMap extends AcGameObject
         this.playground = playground;
         this.ctx = ctx;
         this.radius = 0.1;
-        this.id = null;
+        this.id = -1;
     }
 
     update()
@@ -529,7 +684,7 @@ class MinMap extends AcGameObject
 
     is_mode (player)
     {
-        if (this.playground.mode === "duoren" && this.id)
+        if (this.playground.mode === "duoren" && this.id != -1)
         {
             if (player.id % 2 === this.id)
                 return true;
@@ -752,6 +907,7 @@ class Player extends AcGameObject
                 }
 
                 this.playground.min_map.id = this.playground.plays[0].id % 2;
+                this.playground.chatitem.player_id = this.playground.plays[0].id % 2;
             }
         }
 
@@ -764,7 +920,7 @@ class Player extends AcGameObject
             let tx = Math.random() * this.playground.real_width;
             let ty = Math.random() * this.playground.real_height;
 
-            this.move_to(tx,ty);
+            this.move_to(tx,ty);;
         }
     }
 
@@ -772,9 +928,24 @@ class Player extends AcGameObject
     {
         let outer = this;
 
-        $(window).keydown(function(e){
+        this.playground.GameMap.$canvas.keydown(function(e){
+
+            if (outer.playground.mode === "duoren")
+            {
+                if (e.which === 13)
+                {
+                    outer.playground.chatitem.show_input();
+                    return false;
+                }
+                else if (e.which === 27)
+                {
+                    outer.playground.chatitem.hide_input();
+                    return false;
+                }
+            }
+            
             if(outer.playground.state !== "fighting")
-                return false;
+                return true;
             if(e.which === 81 && outer.fireball_coldtime < outer.esp)
                 outer.cur_skill = "fireball";
             else if(e.which === 82 && outer.skill_r_coldtime < outer.esp)
@@ -958,7 +1129,10 @@ class Player extends AcGameObject
             new FireWorks(this.playground,this,x,y,this.color,radius,angle,move_length,speed);
         }
         if (this.radius < 0.05)
+        {
             this.radius += damage;
+            this.speed *=1.1;
+        }
 
     }
 
@@ -1097,7 +1271,7 @@ class Player extends AcGameObject
         if (this.fireball_coldtime > this.esp)
             this.fireball_coldtime -= this.timedate/1000;
         else
-            this.fireball_codetime =0;
+            this.fireball_coldtime =0;
 
         if (this.flash_coldtime > this.esp)
             this.flash_coldtime -= this.timedate/1000;
@@ -1277,6 +1451,7 @@ class Player extends AcGameObject
         let skill_radius = 0.05 * this.playground.height;
 
         let scale = this.playground.height ;
+        let  d = scale *0.02;
         this.ctx.fillStyle = "rgba(0,0,0,0.4)";
         this.ctx.fillRect(0.5* this.playground.width - this.playground.height * 0.15,this.playground.height * 0.86,this.playground.height *0.5,this.playground.height *0.14);
 
@@ -1296,6 +1471,14 @@ class Player extends AcGameObject
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
 
+        if (!this.fireball_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("Q",x,y+d);
+        }
+
         //flash
         x += scale * 0.12;
         this.ctx.save();
@@ -1310,6 +1493,14 @@ class Player extends AcGameObject
         this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.flash_coldtime / 4 * Math.PI * 2 - Math.PI / 2, true);
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
+
+        if (!this.flash_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("F",x,y+d);
+        }
 
         //skill_r
         x += scale * 0.12;
@@ -1326,6 +1517,13 @@ class Player extends AcGameObject
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill();
 
+        if (!this.skill_r_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("R",x,y+d);
+        }
         //skill_d
         x += scale * 0.12;
         this.ctx.save();
@@ -1339,7 +1537,14 @@ class Player extends AcGameObject
         this.ctx.moveTo(x, y);
         this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_d_coldtime / 8 * Math.PI * 2 - Math.PI / 2, true);
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
-        this.ctx.fill();
+        this.ctx.fill(); 
+        if (!this.skill_d_coldtime )
+        {
+            this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+            this.ctx.fillStyle="rgba(45,12,19,1)";
+            this.ctx.textAlign = "center";
+            this.ctx.fillText("D",x,y+d);
+        }
     }
 
     on_destory()
@@ -1881,6 +2086,10 @@ class MultiplayerSocket{
             {
                 outer.receive_flash(uuid,data.angle);
             }
+            else if (event === "chat")
+            {
+                outer.receive_chat(data.massage,data.id,data.mode);
+            }
         }
     }
 
@@ -2023,6 +2232,26 @@ class MultiplayerSocket{
         
         if (player)  player.flash(angle);
     }
+    send_chat(massage,id,mode)
+    {
+        let outer =this;
+        this.ws.send(JSON.stringify({
+            'event':"chat",
+            'uuid':outer.uuid,
+            'massage':massage,
+            'id':id,
+            'mode':mode,
+        }));
+
+    }
+    receive_chat(massage,id,mode)
+    {
+        if(mode === 1)
+            this.playground.chatitem.render_massage(massage);
+
+        if(mode === 0 && id=== this.playground.chatitem.player_id)
+            this.playground.chatitem.render_massage(massage);
+    }
 }
 class AcgamePlayground{
     constructor(root)
@@ -2038,6 +2267,8 @@ class AcgamePlayground{
         let outer = this;
         $(window).resize(function(){
             outer.resize();
+            if (outer.chatitem)
+                outer.chatitem.resize();
         });
     }
 
@@ -2082,6 +2313,7 @@ class AcgamePlayground{
         }
         else if (this.mode === "duoren")
         {
+            this.chatitem = new ChatItem(this);
             this.mps = new MultiplayerSocket(this);
             this.mps.uuid = this.plays[0].uuid;
 
@@ -2097,10 +2329,6 @@ class AcgamePlayground{
     hide()
     {
         this.is_doing = false;
-
-       // Ac_Game_Objects.splice(0,Ac_Game_Objects.length);//无法返回界面
-
-       // console.log("关闭"+Ac_Game_Objects.length);
         this.$playground.hide();
     }
 
@@ -2292,7 +2520,6 @@ class AcgameSettings{
                 password:outer.$login_password.val(),
             },
             success: function(resp){
-                console.log(resp);
                 if(resp.result ==="success")
                 {
                     location.reload();
@@ -2315,7 +2542,6 @@ class AcgameSettings{
                 password_second:outer.$register_password_second.val(),
             },
             success:function(resp){
-                console.log(resp);
                 if(resp.result === "success")
                 {
                     location.reload();
@@ -2363,7 +2589,6 @@ class AcgameSettings{
             },
             success : function(resp)
             {
-                console.log(resp);
                 if(resp.result === "success"){
                     outer.username=resp.username;
                     outer.photo = resp.photo;
@@ -2381,7 +2606,6 @@ class AcgameSettings{
     {
         let outer =this;
         this.root.acwingos.api.oauth2.authorize(appid, redirect_uri, scope, state, function(resp){
-            console.log(resp);
             if (resp.result === "success")
             {
                 outer.username=resp.username;

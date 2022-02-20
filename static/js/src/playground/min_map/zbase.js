@@ -6,7 +6,7 @@ class MinMap extends AcGameObject
         this.playground = playground;
         this.ctx = ctx;
         this.radius = 0.1;
-        this.id = null;
+        this.id = -1;
     }
 
     update()
@@ -16,7 +16,7 @@ class MinMap extends AcGameObject
 
     is_mode (player)
     {
-        if (this.playground.mode === "duoren" && this.id)
+        if (this.playground.mode === "duoren" && this.id != -1)
         {
             if (player.id % 2 === this.id)
                 return true;

@@ -119,26 +119,25 @@ class ChooseCharacter{
     add_events()
     {
         let outer = this;
-        console.log(this.$choose_character_bgm_hutao);
         this.$choose_character_image_hutao.mouseover(function()
         {
                 outer.$choose_character_bgm_hutao.play();
-                outer.$character_right.show();
+                outer.$character_right.fadeIn();
 
         });
         this.$choose_character_image_hutao.mouseout(function(){
-                outer.$character_right.hide();
+                outer.$character_right.fadeOut();
         })
         
 
         this.$choose_character_image_shenli.mouseover(function()
         {
                outer.$choose_character_bgm_shenli.play();
-               outer.$character_left.show();
+               outer.$character_left.fadeIn();
         });
 
         this.$choose_character_image_shenli.mouseout(function(){
-               outer.$character_left.hide();
+               outer.$character_left.fadeOut();
         });
         this.$choose_character_image_hutao.click(function(){
             outer.hide();

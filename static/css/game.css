@@ -193,7 +193,7 @@
     left:50%;
     transform:translate(-50%,-50%);
     background-color:#229DB6;
-    border-radius:5px;
+    border-radius:6px;
 }
 
 .ac_game_menu{
@@ -281,4 +281,8 @@
      top:50%;
     left:50%;
     transform:translate(-50%,-50%);
+}
+
+.ac_game_chatitem_history::-webkit-scrollbar {
+    width: 0;
 }

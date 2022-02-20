@@ -43,6 +43,10 @@ class MultiplayerSocket{
             {
                 outer.receive_flash(uuid,data.angle);
             }
+            else if (event === "chat")
+            {
+                outer.receive_chat(data.massage,data.id,data.mode);
+            }
         }
     }
 
@@ -184,5 +188,25 @@ class MultiplayerSocket{
         let player = this.search_player(uuid);
         
         if (player)  player.flash(angle);
+    }
+    send_chat(massage,id,mode)
+    {
+        let outer =this;
+        this.ws.send(JSON.stringify({
+            'event':"chat",
+            'uuid':outer.uuid,
+            'massage':massage,
+            'id':id,
+            'mode':mode,
+        }));
+
+    }
+    receive_chat(massage,id,mode)
+    {
+        if(mode === 1)
+            this.playground.chatitem.render_massage(massage);
+
+        if(mode === 0 && id=== this.playground.chatitem.player_id)
+            this.playground.chatitem.render_massage(massage);
     }
 }

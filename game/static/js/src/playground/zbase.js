@@ -12,6 +12,8 @@ class AcgamePlayground{
         let outer = this;
         $(window).resize(function(){
             outer.resize();
+            if (outer.chatitem)
+                outer.chatitem.resize();
         });
     }
 
@@ -56,6 +58,7 @@ class AcgamePlayground{
         }
         else if (this.mode === "duoren")
         {
+            this.chatitem = new ChatItem(this);
             this.mps = new MultiplayerSocket(this);
             this.mps.uuid = this.plays[0].uuid;
 
@@ -71,10 +74,6 @@ class AcgamePlayground{
     hide()
     {
         this.is_doing = false;
-
-       // Ac_Game_Objects.splice(0,Ac_Game_Objects.length);//无法返回界面
-
-       // console.log("关闭"+Ac_Game_Objects.length);
         this.$playground.hide();
     }
 

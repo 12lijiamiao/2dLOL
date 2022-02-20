@@ -183,7 +183,6 @@ class AcgameSettings{
                 password:outer.$login_password.val(),
             },
             success: function(resp){
-                console.log(resp);
                 if(resp.result ==="success")
                 {
                     location.reload();
@@ -206,7 +205,6 @@ class AcgameSettings{
                 password_second:outer.$register_password_second.val(),
             },
             success:function(resp){
-                console.log(resp);
                 if(resp.result === "success")
                 {
                     location.reload();
@@ -254,7 +252,6 @@ class AcgameSettings{
             },
             success : function(resp)
             {
-                console.log(resp);
                 if(resp.result === "success"){
                     outer.username=resp.username;
                     outer.photo = resp.photo;
@@ -272,7 +269,6 @@ class AcgameSettings{
     {
         let outer =this;
         this.root.acwingos.api.oauth2.authorize(appid, redirect_uri, scope, state, function(resp){
-            console.log(resp);
             if (resp.result === "success")
             {
                 outer.username=resp.username;
