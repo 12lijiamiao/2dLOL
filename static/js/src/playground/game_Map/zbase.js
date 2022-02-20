@@ -38,7 +38,7 @@ class GameMap extends AcGameObject{
         this.ctx.canvas.width = this.playground.width;
     }
 
-    update()
+    before_update()
     {
         this.resize();
         this.render();
@@ -48,5 +48,13 @@ class GameMap extends AcGameObject{
     {
         this.ctx.fillStyle = "rgba(176,223,229,1)";
         this.ctx.fillRect( 0, 0,this.ctx.canvas.width,this.ctx.canvas.height);
+    }
+
+    on_destory()
+    {
+        while(this.walls && this.walls.length > 0)
+        {
+            this.walls[0].destory();
+        }
     }
 }

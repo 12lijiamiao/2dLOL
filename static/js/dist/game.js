@@ -262,7 +262,16 @@ class AcGameObject {
 
     }
 
+    before_update()
+    {
+    }
+
     update()
+    {
+
+    }
+
+    later_update()
     {
 
     }
@@ -301,10 +310,22 @@ let Ac_Game_Animation = function(timestamp){
         else
         {
             obj.timedate = timestamp - laststamp ;
-            obj.update();
+            obj.before_update();
         }
 
     }
+    for (let i = 0 ; i< Ac_Game_Objects.length;i++)
+    {
+        let obj = Ac_Game_Objects[i];
+        obj.update();
+    }
+
+    for (let i = 0 ;i<Ac_Game_Objects.length;i++ )
+    {
+        let obj = Ac_Game_Objects[i];
+        obj.later_update();
+    }
+
     laststamp = timestamp;
     requestAnimationFrame(Ac_Game_Animation);
 }
@@ -531,14 +552,14 @@ class Wall extends AcGameObject{
         this.color=color;
     }
 
-    update()
+    before_update()
     {
         this.render();
     }
 
     render()
     {
-        if (!this.playground.foucs) return;
+        if (!this.playground.foucs) return false ;
 
         let unit = this.playground.real_width / 20 ;
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
@@ -554,6 +575,17 @@ class Wall extends AcGameObject{
         this.ctx.stroke();
         this.ctx.restore();
 
+    }
+    on_destory ()
+    {
+        for(let i =0 ;i < this.playground.GameMap.walls.length ;i ++)
+        {
+            let wall = this.playground.GameMap.walls[i];
+            if(wall === this)
+            {
+                this.playground.GameMap.walls.splice(i,1);
+            }
+        }
     }
 }
 class GameMap extends AcGameObject{
@@ -596,7 +628,7 @@ class GameMap extends AcGameObject{
         this.ctx.canvas.width = this.playground.width;
     }
 
-    update()
+    before_update()
     {
         this.resize();
         this.render();
@@ -606,6 +638,14 @@ class GameMap extends AcGameObject{
     {
         this.ctx.fillStyle = "rgba(176,223,229,1)";
         this.ctx.fillRect( 0, 0,this.ctx.canvas.width,this.ctx.canvas.height);
+    }
+
+    on_destory()
+    {
+        while(this.walls && this.walls.length > 0)
+        {
+            this.walls[0].destory();
+        }
     }
 }
 class GameBoard extends AcGameObject
@@ -1288,8 +1328,20 @@ class Player extends AcGameObject
         else
             this.skill_r_coldtime = 0;
     }
+
+    update_win()
+    {
+        if (this.playground.state === "fighting" && this.playground.mode === "danren" && this.playground.plays.length === 1 && this.character === "me")
+        {
+            this.playground.scoreboard.win();
+            this.playground.state = "over";
+            this.playground.foucus = null;
+        }
+    }
+
     update()
     {
+        this.update_win();
         this.update_time();
         this.spend_time += this.timedate / 1000;
 
@@ -1550,7 +1602,12 @@ class Player extends AcGameObject
     on_destory()
     {
         if (this.character === "me")
-        {    
+        {
+            if (this.playground.mode === "danren" && this.playground.state === "fighting")
+            {
+                this.playground.scoreboard.lose();
+                this.playground.foucs = null;
+            }
             this.playground.state = "over";
             this.playground.notice_board.write("You are over");
 
@@ -1595,6 +1652,76 @@ class Player extends AcGameObject
 
 }
 
+class ScoreBoard extends AcGameObject
+{
+    constructor(playground)
+    {
+        super();
+
+        this.playground = playground;
+        this.ctx = this.playground.GameMap.ctx;
+
+        this.state = null ;
+
+        this.win_img = new Image();
+        this.win_img.src = "https://cdn.acwing.com/media/article/image/2021/12/17/1_8f58341a5e-win.png";
+
+        this.lose_img = new Image();
+        this.lose_img.src = "https://cdn.acwing.com/media/article/image/2021/12/17/1_9254b5f95e-lose.png";
+
+    }
+
+    start()
+    {
+    }
+
+    add_listening_events(){
+        let outer = this;
+
+        if (this.playground.GameMap)
+        {
+            let $canvas = this.playground.GameMap.$canvas;
+            $canvas.on('click',function(){
+                outer.playground.hide();
+                outer.playground.root.menu.show();
+            });
+        }
+    }
+
+    win(){
+        this.state = "win";
+        let outer = this;
+        setTimeout(function(){
+            outer.add_listening_events();
+        },1000);
+    }
+
+    lose()
+    {
+        this.state = "lose";
+        let outer = this;
+        setTimeout(function(){
+            outer.add_listening_events();
+        },1000);
+    }
+
+    later_update()
+    {
+        this.render();
+    }
+
+    render()
+    {
+        let len = this.playground.height / 2;
+        if (this.state === "win"){
+            this.ctx.drawImage(this.win_img , this.playground.width /2 -len /2,this.playground.height / 2 -len / 2, len , len)
+        }
+        else if(this.state === "lose")
+        {
+            this.ctx.drawImage(this.lose_img , this.playground.width /2 -len /2,this.playground.height / 2 -len / 2, len , len)
+        }
+    }
+}
 class CureBall extends AcGameObject
 {
     constructor (playground,player,x,y)
@@ -1678,6 +1805,8 @@ class CureBall extends AcGameObject
 
     render ()
     {
+        if (!this.playground.foucs) return false ;
+
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;
         let scale = this.playground.scale;
@@ -1744,7 +1873,7 @@ class FireBall extends AcGameObject
     is_attack(player,tx ,ty , tr)
     {
         let distance = this.get_distance(tx,ty,this.x,this.y);
-        if(player.character === "ai" && distance < player.radius * 2 )
+        if(player.character === "ai" && distance < player.radius * 2 && 0)
         {
 
             player.cur_skill = "flash";
@@ -1834,6 +1963,8 @@ class FireBall extends AcGameObject
 
     render()
     {
+        if (!this.playground.foucs) return false ;
+
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;
         let scale = this.playground.scale;
@@ -2012,6 +2143,8 @@ class GreenArrow extends AcGameObject
     }
     render()
     {
+        if (!this.playground.foucs) return false ;
+
         let start_x = this.start_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let start_y = this.start_y - this.playground.plays[0].y + 0.5 ;
 
@@ -2262,14 +2395,34 @@ class AcgamePlayground{
         this.start();
     }
 
+    create_uuid() {
+        let res = "";
+        for (let i = 0; i < 8; i ++ ) {
+            let x = parseInt(Math.floor(Math.random() * 10));
+            res += x;
+        }
+        return res;
+    }
+
+
     start()
     {
         let outer = this;
-        $(window).resize(function(){
+        let id = this.create_uuid();
+        $(window).on(`resize.${id}`,function(){
             outer.resize();
             if (outer.chatitem)
                 outer.chatitem.resize();
         });
+
+        if(this.root.acwingos)
+        {
+            this.root.acwingos.api.window.on_close(function(){
+                outer.hide();
+                $(window).off(`resize.${id}`);
+            });
+        }
+
     }
 
     get_random_color()
@@ -2306,6 +2459,7 @@ class AcgamePlayground{
         this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo,null,this.work));
         this.foucs = this.plays[0];
         this.min_map = new MinMap(this,this.GameMap.ctx);
+        this.scoreboard = new ScoreBoard(this);
         if(this.mode === "danren")
         {
             for(let i = 0 ; i < 5 ;i++)
@@ -2329,10 +2483,42 @@ class AcgamePlayground{
     hide()
     {
         this.is_doing = false;
+
+        while (this.plays && this.plays.length > 0)
+        {
+            this.plays[0].destory();
+            this.foucs = null ;
+        }
+
+        if (this.GameMap)
+        {
+            this.GameMap.destory();
+            this.GameMap = null;
+        }
+
+        if (this.notice_board)
+        {
+            this.notice_board.destory();
+            this.notice_board = null;
+        }
+
+        if(this.scoreboard)
+        {
+            this.scoreboard.destory();
+            this.scoreboard = null;
+        }
+
+        if (this.min_map)
+        {
+            this.min_map.destory();
+            this.min_map = null;
+        }
+
         this.$playground.hide();
+        this.$playground.empty();
     }
 
-    
+
 
 }
 class AcgameSettings{

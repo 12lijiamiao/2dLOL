@@ -55,7 +55,7 @@ class FireBall extends AcGameObject
     is_attack(player,tx ,ty , tr)
     {
         let distance = this.get_distance(tx,ty,this.x,this.y);
-        if(player.character === "ai" && distance < player.radius * 2 )
+        if(player.character === "ai" && distance < player.radius * 2 && 0)
         {
 
             player.cur_skill = "flash";
@@ -145,6 +145,8 @@ class FireBall extends AcGameObject
 
     render()
     {
+        if (!this.playground.foucs) return false ;
+
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;
         let scale = this.playground.scale;

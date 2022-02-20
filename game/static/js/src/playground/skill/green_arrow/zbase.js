@@ -154,6 +154,8 @@ class GreenArrow extends AcGameObject
     }
     render()
     {
+        if (!this.playground.foucs) return false ;
+
         let start_x = this.start_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let start_y = this.start_y - this.playground.plays[0].y + 0.5 ;
 

@@ -9,14 +9,14 @@ class Wall extends AcGameObject{
         this.color=color;
     }
 
-    update()
+    before_update()
     {
         this.render();
     }
 
     render()
     {
-        if (!this.playground.foucs) return;
+        if (!this.playground.foucs) return false ;
 
         let unit = this.playground.real_width / 20 ;
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
@@ -32,5 +32,16 @@ class Wall extends AcGameObject{
         this.ctx.stroke();
         this.ctx.restore();
 
+    }
+    on_destory ()
+    {
+        for(let i =0 ;i < this.playground.GameMap.walls.length ;i ++)
+        {
+            let wall = this.playground.GameMap.walls[i];
+            if(wall === this)
+            {
+                this.playground.GameMap.walls.splice(i,1);
+            }
+        }
     }
 }

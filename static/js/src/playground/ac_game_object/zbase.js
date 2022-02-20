@@ -28,7 +28,16 @@ class AcGameObject {
 
     }
 
+    before_update()
+    {
+    }
+
     update()
+    {
+
+    }
+
+    later_update()
     {
 
     }
@@ -67,10 +76,22 @@ let Ac_Game_Animation = function(timestamp){
         else
         {
             obj.timedate = timestamp - laststamp ;
-            obj.update();
+            obj.before_update();
         }
 
     }
+    for (let i = 0 ; i< Ac_Game_Objects.length;i++)
+    {
+        let obj = Ac_Game_Objects[i];
+        obj.update();
+    }
+
+    for (let i = 0 ;i<Ac_Game_Objects.length;i++ )
+    {
+        let obj = Ac_Game_Objects[i];
+        obj.later_update();
+    }
+
     laststamp = timestamp;
     requestAnimationFrame(Ac_Game_Animation);
 }

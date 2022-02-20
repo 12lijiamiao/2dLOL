@@ -500,8 +500,20 @@ class Player extends AcGameObject
         else
             this.skill_r_coldtime = 0;
     }
+
+    update_win()
+    {
+        if (this.playground.state === "fighting" && this.playground.mode === "danren" && this.playground.plays.length === 1 && this.character === "me")
+        {
+            this.playground.scoreboard.win();
+            this.playground.state = "over";
+            this.playground.foucus = null;
+        }
+    }
+
     update()
     {
+        this.update_win();
         this.update_time();
         this.spend_time += this.timedate / 1000;
 
@@ -762,7 +774,12 @@ class Player extends AcGameObject
     on_destory()
     {
         if (this.character === "me")
-        {    
+        {
+            if (this.playground.mode === "danren" && this.playground.state === "fighting")
+            {
+                this.playground.scoreboard.lose();
+                this.playground.foucs = null;
+            }
             this.playground.state = "over";
             this.playground.notice_board.write("You are over");
 

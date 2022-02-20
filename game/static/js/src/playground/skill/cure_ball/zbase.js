@@ -81,6 +81,8 @@ class CureBall extends AcGameObject
 
     render ()
     {
+        if (!this.playground.foucs) return false ;
+
         let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
         let y = this.y - this.playground.plays[0].y + 0.5 ;
         let scale = this.playground.scale;
