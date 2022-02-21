@@ -40,7 +40,21 @@ class MinMap extends AcGameObject
         this.ctx.fillRect(this.playground.width - x * scale,0,x * scale,y * scale);
         this.x = this.playground.width - this.playground.real_width / 8 * this.playground.scale;
         this.y = this.playground.height - this.playground.real_height / 8 * this.playground.scale;
-   
+
+        if (this.playground.mode === "duoren")
+        {
+            let unit = this.playground.real_width/20;
+            let room_x = this.playground.GameMap.room_x;
+            let room_y = this.playground.GameMap.room_y;
+            for (let i = 0; i < room_x.length; i++)
+            {
+                this.ctx.fillStyle = "rgba(54,41,47,0.7)";
+                let x =room_x[i] * scale / 8 + this.x;
+                let y = room_y[i] * scale / 8;
+
+                this.ctx.fillRect(x,y,unit *scale / 8,unit * scale / 8);
+            }
+        }
 
         for (let i =0 ;i < this.playground.plays.length ; i++)
         {
@@ -73,6 +87,12 @@ class MinMap extends AcGameObject
                 }
                 this.ctx.strokeRect(tx/ 8 + this.x, ty/ 8, this.playground.width  / 8, this.playground.height / 8);
             }
+
+            if (this.playground.mode === "duoren" && player.death_time > player.esp)
+            {
+                continue;
+            }
+
             if (this.is_mode(player))
             {
                 this.ctx.beginPath();

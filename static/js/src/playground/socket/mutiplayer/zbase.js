@@ -138,12 +138,19 @@ class MultiplayerSocket{
             }
             else if (events === "guangdun")
             {
+                if (player.skill_b_time > player.esp )
+                    player.skill_b_time = 0;
                 player.skill_r_time = 3;
             }
             else if (events === "cureball")
             {
                 let cureball = player.shoot_cureball(tx,ty);
                 cureball.uuid = ball_uuid;
+            }
+            else if (events === "return_home")
+            {
+                player.skill_b_time = 3;
+                player.vx = player.vy = player.move_length = 0
             }
         }
     }

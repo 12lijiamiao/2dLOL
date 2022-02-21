@@ -8,6 +8,36 @@ class GameMap extends AcGameObject{
         this.ctx = this.$canvas[0].getContext('2d');
         this.playground.$playground.append(this.$canvas);
         this.walls= [];
+        if (this.playground.mode === "duoren")
+        {
+            this.map = [
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0],
+                [0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0],
+                [0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0],
+                [0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+                [0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0],
+                [0,0,0,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0],
+                [0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0],
+                [0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+                [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0],
+                [0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            ]
+  
+            this.room_x = [];
+            this.room_y = [];
+            this.rooms = [];
+        }
+
         this.start();
     }
 
@@ -15,6 +45,8 @@ class GameMap extends AcGameObject{
     {
         this.$canvas.focus();
         this.create_walls();
+        if (this.playground.mode === "duoren")
+            this.create_rooms();
     }
 
     create_walls()
@@ -32,6 +64,25 @@ class GameMap extends AcGameObject{
         }
     }
 
+    create_rooms()
+    {
+        let color = "rgba(122,115,116,0.7)";
+        let unit = this.playground.real_width / 20;
+        for( let i = 0 ;i < 20; i++)
+        {
+            for (let j =0; j< 20 ;j++)
+            {
+                if(this.map[i][j] === 1)
+                {
+                    this.x = i * unit;
+                    this.y = j * unit;
+                    this.room_x.push(this.x);
+                    this.room_y.push(this.y);
+                    this.rooms.push(new Room(this.playground,this.ctx,this.x,this.y,color));
+                }
+            }
+        }
+    }
     resize()
     {
         this.ctx.canvas.height= this.playground.height;
@@ -55,6 +106,10 @@ class GameMap extends AcGameObject{
         while(this.walls && this.walls.length > 0)
         {
             this.walls[0].destory();
+        }
+        while(this.rooms && this.rooms.length > 0)
+        {
+            this.rooms[0].destory();
         }
     }
 }

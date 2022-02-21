@@ -58,6 +58,18 @@ class GreenArrow extends AcGameObject
 
         if (y < this.esp*0.1 || y > this.playground.real_height - this.esp*0.1)
             return true;
+
+        if (this.playground.mode === "duoren")
+        {
+            let unit = this.playground.real_width/20;
+            let room_x = this.playground.GameMap.room_x;
+            let room_y = this.playground.GameMap.room_y;
+            for (let i = 0; i < room_x.length; i++)
+            {
+                    if (room_x[i]<=x && x<=room_x[i] + unit && room_y[i]<=y && y <= room_y[i]+unit)
+                        return true;
+            }
+        }
         return false;
     }
 
@@ -72,13 +84,13 @@ class GreenArrow extends AcGameObject
     {
         let distance = this.get_distance(tx,ty,this.now_x,this.now_y);
         //if(player.character === "ai" && distance < player.radius * 2 )
-       // {
+        // {
 
-         //   player.cur_skill = "flash";
-            //player.is_flash = true;
-           // player.flash_angle = this.angle + Math.PI / 2;
+        //   player.cur_skill = "flash";
+        //player.is_flash = true;
+        // player.flash_angle = this.angle + Math.PI / 2;
         //}
-        
+
         if (player.skill_r_time > this.esp && distance < 0.2)
             return true;
         if(distance < tr )
@@ -108,7 +120,7 @@ class GreenArrow extends AcGameObject
         for(let i = 0 ; i < this.playground.plays.length ; i++)
         {
             let player = this.playground.plays[i];
-            
+
             if(this.is_mode(player) && this.is_attack(player,player.x , player.y , player.radius) && this.plan_player[i] === "0")
             {
                 this.attack(player,this.player);

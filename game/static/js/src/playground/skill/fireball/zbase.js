@@ -28,6 +28,26 @@ class FireBall extends AcGameObject
 
         if (y - this.radius < this.esp*0.1 || y + this.radius > this.playground.real_height - this.esp*0.1)
             return true;
+
+        if (this.playground.mode === "duoren")
+        {
+            let unit = this.playground.real_width/20;
+            let room_x = this.playground.GameMap.room_x;
+            let room_y = this.playground.GameMap.room_y;
+            for (let i = 0; i < room_x.length; i++)
+            {
+                for (let j=0 ; j < 8 ;j++)
+                {
+                    let angle = Math.PI * 2 / 8 * j;
+                    let tx = x + Math.cos(angle)*this.radius;
+                    let ty = y + Math.sin(angle)*this.radius;
+
+                    if (room_x[i]<=tx && tx<=room_x[i] + unit && room_y[i]<=ty && ty <= room_y[i]+unit)
+                        return true;
+
+                }
+            }
+        }
         return false;
     }
 
@@ -55,7 +75,7 @@ class FireBall extends AcGameObject
     is_attack(player,tx ,ty , tr)
     {
         let distance = this.get_distance(tx,ty,this.x,this.y);
-        if(player.character === "ai" && distance < player.radius * 2 && 0)
+        if(player.character === "ai" && distance < player.radius * 2 )
         {
 
             player.cur_skill = "flash";
@@ -74,7 +94,7 @@ class FireBall extends AcGameObject
     attack(player,attackee_player)
     {
         let angle = Math.atan2(player.y-this.y,player.x-this.x);
-        
+
         if(player.skill_r_time < this.esp)
             player.attacked(angle,this.damage,attackee_player,"fireball");
 

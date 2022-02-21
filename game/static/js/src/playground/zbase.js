@@ -82,7 +82,7 @@ class AcgamePlayground{
             this.chatitem = new ChatItem(this);
             this.mps = new MultiplayerSocket(this);
             this.mps.uuid = this.plays[0].uuid;
-
+            this.kill_cnt = [0,0];
             this.mps.ws.onopen = function()
             {
                 outer.mps.send_create_player(outer.root.settings.username,outer.root.settings.photo,outer.work);

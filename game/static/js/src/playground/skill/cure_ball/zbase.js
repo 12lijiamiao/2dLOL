@@ -1,6 +1,6 @@
 class CureBall extends AcGameObject
 {
-    constructor (playground,player,x,y)
+    constructor (playground,player,x,y,time,radius,character)
     {
         super();
 
@@ -9,11 +9,12 @@ class CureBall extends AcGameObject
         this.player =player;
         this.x = x;
         this.y = y;
-        this.time = 3;
-        this.radius = 0.2;
+        this.time = time;
+        this.radius = radius;
         this.color = "rgba(150,194,78,0.5)";
         this.esp =0.01;
         this.damage = 0.01;
+        this.character = character;
     }
 
     is_mode(player)
@@ -52,7 +53,7 @@ class CureBall extends AcGameObject
         let angle = Math.atan2(player.y-this.y,player.x-this.x);
         player.cureball_attacked(this.damage);
 
-        if (this.playground.mode ==="duoren")
+        if (this.playground.mode ==="duoren" && this.character === "player")
         {
             this.playground.mps.send_attack(player.uuid,this.uuid,this.damage,angle,player.x,player.y,"cureball");
         }
@@ -75,6 +76,9 @@ class CureBall extends AcGameObject
             this.destory();
 
         if (this.player.character !== "enemy")
+            this.update_attack();
+
+        if (this.character === "System")
             this.update_attack();
         this.render();
     }
