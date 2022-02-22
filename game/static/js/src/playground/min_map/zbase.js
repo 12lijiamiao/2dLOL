@@ -93,6 +93,15 @@ class MinMap extends AcGameObject
                 continue;
             }
 
+            if (player.username === "boss")
+            {
+                this.ctx.beginPath();
+                this.ctx.arc(x * scale / 8 + this.x,y * scale / 8 ,this.radius * scale / 8,0,Math.PI * 2 , false);
+                this.ctx.fillStyle = "yellow";
+                this.ctx.fill();
+                continue;
+            }
+
             if (this.is_mode(player))
             {
                 this.ctx.beginPath();

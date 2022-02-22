@@ -47,6 +47,14 @@ class MultiplayerSocket{
             {
                 outer.receive_chat(data.massage,data.id,data.mode);
             }
+            else if (event === "create_boss")
+            {
+                outer.receive_create_boss(uuid,data.username,data.photo,data.id,data.state);
+            }
+            else if (event === "move_boss")
+            {
+                outer.receive_move_boss(uuid,data.angle,data.move_length);
+            }
         }
     }
 
@@ -92,6 +100,37 @@ class MultiplayerSocket{
         player.uuid = uuid;
         this.playground.plays.push(player);
     }
+
+    receive_create_boss(uuid,username,photo,id,state)
+    {
+
+        this.playground.notice_board.write("Fighting");
+        let unit = this.playground.real_width / 20;
+        let room_x = [2*unit,3-2*unit];
+        let room_y = [3-unit*2,2*unit];
+
+        let index =state;
+        let player = new Player(
+            this.playground,
+            room_x[index],
+            room_y[index],
+            0.15,
+            0.10,
+            "white",
+            "enemy",
+            username,
+            photo,
+            id,
+        )
+
+        player.start_x = room_x[index];
+        player.start_y = room_y[index];
+        player.uuid = uuid;
+        this.playground.plays.push(player);
+    }
+
+
+
     send_move_to(tx,ty)
     {
         let outer = this;
@@ -109,6 +148,25 @@ class MultiplayerSocket{
 
         if(player) player.move_to(tx,ty);
     }
+
+    receive_move_boss(uuid,angle,move_length)
+    {
+        let player = this.search_player(uuid);
+
+        if(player)
+        {
+            let unit = this.playground.real_width /20;
+            let move_angle = Math.PI * 2 * angle;
+            let length = 1.5 * unit * move_length;
+            let tx = player.start_x + Math.cos(move_angle) * length;
+            let ty = player.start_y + Math.sin(move_angle) * length;
+            
+            player.move_to(tx,ty);
+        }
+    }
+
+
+
     send_fireball(tx,ty,ball_uuid,events)
     {
         let outer = this;

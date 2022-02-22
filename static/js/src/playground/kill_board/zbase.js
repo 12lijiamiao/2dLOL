@@ -7,6 +7,7 @@ class KillBoard extends AcGameObject
         this.ctx =this.playground.GameMap.ctx;
         this.time = 360;
         this.esp = 0.01;
+        this.id = this.playground.plays[0].id;
     }
 
     update()
@@ -29,10 +30,9 @@ class KillBoard extends AcGameObject
         this.ctx.fillStyle="rgba(45,12,19,1)";
         this.ctx.textAlign = "center";
 
-        let id = this.playground.plays[0].id;
 
         let kill_cnt = this.playground.kill_cnt;
 
-        this.ctx.fillText(kill_cnt[id % 2]+" : "+kill_cnt[(id + 1) % 2],this.playground.width - x * scale - this.playground.width * 0.05,this.playground.height*0.05);
+        this.ctx.fillText(kill_cnt[this.id % 2]+" : "+kill_cnt[(this.id + 1) % 2],this.playground.width - x * scale - this.playground.width * 0.05,this.playground.height*0.05);
     }
 }

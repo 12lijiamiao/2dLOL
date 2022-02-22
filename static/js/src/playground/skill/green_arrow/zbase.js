@@ -27,6 +27,9 @@ class GreenArrow extends AcGameObject
 
     is_mode(player)
     {
+        if (player.username === "boss")
+            return true;
+
         if (this.playground.mode === "duoren")
         {
             if (player.id % 2 !== this.player.id % 2)

@@ -3,14 +3,23 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from django.core.cache import cache
 
+from thrift import Thrift
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
+
+from Ai_Server.src.ai_server.ai_service import Ai
+
+
+Room_max_len = 4;
+
 class MultiPlayer(AsyncWebsocketConsumer):
     async def connect(self):
 
         self.room_name = None
-
         for i in range(1000):
             name = "room-%d" % (i)
-            if not cache.has_key(name) or len(cache.get(name)) < 4:
+            if not cache.has_key(name) or len(cache.get(name)) < Room_max_len:
                 self.room_name = name
                 break
 
@@ -49,6 +58,21 @@ class MultiPlayer(AsyncWebsocketConsumer):
                 'work':data['work'],
             })
         cache.set(self.room_name,players,3600)
+
+        if len(players) == Room_max_len:
+            transport = TSocket.TSocket('127.0.0.1', 9090)
+
+            transport = TTransport.TBufferedTransport(transport)
+
+            protocol = TBinaryProtocol.TBinaryProtocol(transport)
+
+            client = Ai.Client(protocol)
+
+            transport.open()
+
+            client.add_room_ai(self.room_name , self.channel_name)
+
+            transport.close()
 
         await self.channel_layer.group_send( #将自己的信息发给其他人
                 self.room_name,

@@ -105,10 +105,13 @@ class Player extends AcGameObject
 
     start()
     {
+        if (this.username === "boss")
+            return ;
+
         this.playground.player_cnt ++;
         this.playground.notice_board.write("已就绪 ："+this.playground.player_cnt +"人");
 
-        if(this.playground.player_cnt >= 4)
+        if(this.playground.player_cnt >= 4 )
         {
             this.playground.state = "fighting";
             this.playground.notice_board.write("Fighting");
@@ -373,13 +376,20 @@ class Player extends AcGameObject
                 }
 
             }
+
+
             if (this.playground.mode === "danren")
                 this.destory();
             else if (this.playground.mode === "duoren")
             {
-                this.death_time = 5;
-                this.vx = this.vy = this.move_length = 0;
-                this.playground.kill_cnt[(this.id + 1) % 2] ++;
+                if (this.username !== "boss")
+                {    
+                    this.death_time = 5;
+                    this.vx = this.vy = this.move_length = 0;
+                }
+                else 
+                    this.destory();
+                this.playground.kill_cnt[attackee.id % 2] ++;
                 if(this.character === "me")
                 {
                     this.playground.state ="over";

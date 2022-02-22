@@ -12,7 +12,16 @@ class TimeBoard extends AcGameObject
     update()
     {
         if (this.time > this.esp)
+        {
+
             this.time -= this.timedate / 1000;
+
+            if (this.time > 180 - this.esp && this.time < 190 + this.esp)
+            {
+                this.playground.notice_board.write("河道之灵刷新"+Math.floor(this.time - 180)+"秒");
+            }
+
+        }
         else
             this.time = 0;
 
