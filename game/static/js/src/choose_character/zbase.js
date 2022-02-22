@@ -69,7 +69,7 @@ class ChooseCharacter{
                     <div class = "ac_game_character_skill">
                         <img width = "50" src ="https://app730.acapp.acwing.com.cn/static/image/playground/skill/flash.png">
                         <div>
-                            闪现: 向指定方向进行一段位移， f按键施法 CD: 4秒
+                            闪现: 向指定方向进行一段位移， f按键施法 CD: 8秒
                         </div>
                     </div>
                     <div class = "ac_game_character_skill">
@@ -81,7 +81,7 @@ class ChooseCharacter{
                     <div class = "ac_game_character_skill">
                         <img width = "50" src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/cureball.jpg">
                         <div>
-                            天使之拥：指定一个位置产生一个光阵,给自己以及队友回复生命 d按键施法 CD: 8秒 有效时间: 3秒
+                            天使之拥：指定一个位置产生一个光阵,给自己以及队友回复生命 d按键施法 CD: 30秒 有效时间: 2秒
                         </div>
                     </div>
                 </div>

@@ -37,7 +37,6 @@ class Player extends AcGameObject
             this.img.src = this.photo;
             this.work = work;
             this.skill_d = null;
-            this.skill_d_coldtime=8;
             this.skill_r = null;
             this.skill_r_coldtime=8;
             this.fireball_coldtime = 2;
@@ -63,6 +62,7 @@ class Player extends AcGameObject
                     this.skill_r_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/all_fireball.png";
                     this.skill_d_img = new Image();
                     this.skill_d_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/cureball.jpg";
+                    this.skill_d_coldtime = 30;
                 }
                 else if (this.work === "shenli")
                 {
@@ -70,6 +70,7 @@ class Player extends AcGameObject
                     this.skill_r_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/guangdun.jpeg";
                     this.skill_d_img = new Image();
                     this.skill_d_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/greenarrow.png";
+                    this.skill_d_coldtime = 8;
                 }
             }
         }
@@ -307,12 +308,12 @@ class Player extends AcGameObject
                 }
                 else if (outer.skill_d === "ready")
                 {
-                    outer.skill_d_coldtime = 8;
+                    
                     if (outer.work === "shenli")
                     {
                         let greenarrow = outer.shoot_greenarrow(tx,ty);
                         outer.skill_d =null;
-
+                        outer.skill_d_coldtime = 8;
                         if (outer.playground.mode === "duoren")
                         {
                             outer.playground.mps.send_fireball(tx,ty,greenarrow.uuid,"greenarrow");
@@ -320,6 +321,7 @@ class Player extends AcGameObject
                     }
                     else if(outer.work === "hutao")
                     {
+                        outer.skill_d_coldtime = 30;
                         let cureball = outer.shoot_cureball(tx,ty);
                         outer.skill_d =null;
 
@@ -986,6 +988,12 @@ class Player extends AcGameObject
             this.ctx.fillText("R",x,y+d);
         }
         //skill_d
+       
+        let time = 0;
+        if (this.work === "shenli")
+            time = 8;
+        else if (this.work === "hutao")
+            time = 30;
         x += scale * 0.12;
         this.ctx.save();
         this.ctx.beginPath();
@@ -996,7 +1004,7 @@ class Player extends AcGameObject
 
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
-        this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_d_coldtime / 8 * Math.PI * 2 - Math.PI / 2, true);
+        this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_d_coldtime / time * Math.PI * 2 - Math.PI / 2, true);
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
         this.ctx.fill(); 
         if (!this.skill_d_coldtime )
