@@ -31,6 +31,9 @@ class Player extends AcGameObject
         this.skill_r_time = 0;
         this.death_time = 0;
         this.damage_doing = false;
+        this.skill_doing = false;
+        this.mouse_x = 0;
+        this.mouse_y = 0;
 
         if (this.character !== "ai") {
             this.img = new Image();
@@ -174,6 +177,16 @@ class Player extends AcGameObject
     {
         let outer = this;
 
+        this.playground.GameMap.$canvas.mousemove(function(e){
+                const rect = outer.ctx.canvas.getBoundingClientRect();
+
+                let tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
+                let ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
+
+                outer.mouse_x = tx;
+                outer.mouse_y = ty;
+
+        });
         this.playground.GameMap.$canvas.keydown(function(e){
 
             if (outer.playground.mode === "duoren")
@@ -189,11 +202,14 @@ class Player extends AcGameObject
                     return false;
                 }
             }
-            
+
             if(outer.playground.state !== "fighting")
                 return true;
             if(e.which === 81 && outer.fireball_coldtime < outer.esp)
+            {
                 outer.cur_skill = "fireball";
+                outer.skill_doing = true;
+            }
             else if(e.which === 82 && outer.skill_r_coldtime < outer.esp)
             {
                 outer.skill_r_coldtime = 8;
@@ -218,18 +234,35 @@ class Player extends AcGameObject
                 }
             }
             else if(e.which === 70 && outer.flash_coldtime < outer.esp)
+            {
                 outer.cur_skill = "flash";
+                outer.skill_doing = true;
+            }
             else if(e.which === 68 && outer.skill_d_coldtime < outer.esp)
+            {
                 outer.skill_d = "ready";
+                outer.skill_doing = true;
+            }
             else if (e.which === 66 && outer.playground.mode === "duoren" && outer.skill_b_coldtime < outer.esp)
             {
                 outer.skill_b_time = 3;
-                outer.skill_b_coldtime = 8 ;
                 outer.vx = outer.vy = outer.move_length = 0;
                 let tx = 0;
                 let ty = 0;
                 let uuid = 0;
                 outer.playground.mps.send_fireball(tx,ty,uuid,"return_home");
+            }
+            else if (e.which === 83)
+            {
+                outer.vx= outer.vy = outer.move_length = 0;
+                if (outer.playground.mode === "duoren")
+                {
+                    let tx = 0;
+                    let ty = 0;
+                    let uuid = 0;
+                    outer.playground.mps.send_fireball(tx,ty,uuid,"stay");
+                }
+
             }
 
         });
@@ -254,7 +287,7 @@ class Player extends AcGameObject
                 return true;
 
             if (outer.playground.mode === "duoren")
-            {
+            {G
                 let unit = outer.playground.real_width / 20;
                 let room_x = outer.playground.GameMap.room_x;
                 let room_y = outer.playground.GameMap.room_y;
@@ -298,17 +331,18 @@ class Player extends AcGameObject
                     {
                         outer.playground.mps.send_fireball(tx,ty,fireball.uuid,"fireball");
                     }
-
+                    outer.skill_doing = false;
                 }
                 else if(outer.cur_skill === "flash")
                 {
                     outer.flash_angle = Math.atan2(ty - outer.y ,tx - outer.x);
                     outer.is_flash = true;
                     outer.flash_coldtime = 8;
+                    outer.skill_doing = false;
                 }
                 else if (outer.skill_d === "ready")
                 {
-                    
+
                     if (outer.work === "shenli")
                     {
                         let greenarrow = outer.shoot_greenarrow(tx,ty);
@@ -330,6 +364,7 @@ class Player extends AcGameObject
                             outer.playground.mps.send_fireball(tx,ty,cureball.uuid,"cureball");
                         }
                     }
+                    outer.skill_doing = false;
                 }
             }
         });
@@ -590,6 +625,7 @@ class Player extends AcGameObject
         {
             this.x = this.start_x;
             this.y = this.start_y;
+            this.skill_b_coldtime = 8;
         }
     }
 
@@ -727,47 +763,8 @@ class Player extends AcGameObject
             this.playground.notice_board.write("复活倒计时"+Math.floor(this.death_time)+"秒");
         }
 
-
-        if (this.out_of_map(this.x,this.y) && !this.damage_doing )
-        {
-            if (this.x < this.esp * 0.1)
-            {
-                this.x = this.radius;
-            }
-
-            if (this.y < this.esp * 0.1)
-            {
-                this.y = this.radius;
-            }
-
-            if (this.x > this.playground.real_width - this.esp * 0.1)
-            {
-                this.x = this.playground.real_width - this.radius;
-            }
-
-            if (this.y > this.playground.real_height - this.esp * 0.1)
-            {
-                this.y = this.playground.real_height - this.radius;
-            } 
-            if (this.damage_speed >this.esp)
-            {
-                this.damage_speed = 0.0025 * 80;
-
-                this.damage_vx = -1 * this.damage_vx;
-                this.damage_vy = -1 * this.damage_vy;
-                this.damage_doing = true;
-            }
-            else if(this.move_length >this.esp)
-            {
-                this.damage_speed = 0.0025 * 80 ;
-                this.damage_vx = -1 * this.vx;
-                this.damage_vy = -1 * this.vy;
-                this.damage_doing = true;
-            }
-
-        }
-
-
+        let last_x = this.x ;
+        let last_y = this.y ;
         if(this.damage_speed > this.esp)
         {
             this.vx = 0 ;
@@ -823,6 +820,13 @@ class Player extends AcGameObject
                 }
             }
         }
+
+        if (this.out_of_map(this.x,this.y) )
+        {
+            this.vx = this.vy = this.move_length = this.damage_speed = 0;
+            this.x = last_x;
+            this.y = last_y;
+        }
         this.render();
 
     }
@@ -836,6 +840,21 @@ class Player extends AcGameObject
 
         let scale = this.playground.scale;
 
+
+        if (this.skill_doing)
+        {
+            let tx = this.mouse_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+            let ty = this.mouse_y - this.playground.plays[0].y + 0.5 ;
+
+            this.ctx.beginPath();
+            this.ctx.lineWidth = this.playground.height *0.01;
+            this.ctx.strokeStyle = "white";
+            this.ctx.moveTo(x,y);
+            this.ctx.lineTo(tx,ty);
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+
         if (this.death_time > this.esp)
         {
             return false;
@@ -848,7 +867,7 @@ class Player extends AcGameObject
             this.ctx.fillStyle =  "rgba(254,215,26,0.7)";
             this.ctx.fill();
         }
-        
+
         if (this.character !== "ai") {
             this.ctx.save();
             this.ctx.beginPath();
@@ -890,30 +909,50 @@ class Player extends AcGameObject
 
         if(this.playground.mode === "duoren")
         {
+
             this.ctx.fillStyle = "rgba(0,0,0,0.4)";
             this.ctx.fillRect(0.5 * this.playground.width - this.playground.height *0.27 , this.playground.height *0.86 , this.playground.height * 0.12,this.playground.height *0.14);
 
             let x = this.playground.width*0.5 - this.playground.height*0.2;
             let y = this.playground.height * 0.93;
-            this.ctx.save();
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, skill_radius, 0, Math.PI * 2, false);
-            this.ctx.clip();
-            this.ctx.drawImage(this.skill_b_img, x - skill_radius, y - skill_radius, skill_radius * 2 , skill_radius * 2);
-            this.ctx.restore();
-
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, y );
-            this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_b_coldtime / 8 * Math.PI * 2 - Math.PI / 2, true);
-            this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
-            this.ctx.fill();
-
-            if (!this.skill_b_coldtime )
+            if (this.skill_b_time > 0)
             {
-                this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
-                this.ctx.fillStyle="rgba(45,12,19,1)";
-                this.ctx.textAlign = "center";
-                this.ctx.fillText("B",x,y+d);
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, skill_radius, 0, Math.PI * 2, false);
+                this.ctx.clip();
+                this.ctx.drawImage(this.skill_b_img, x - skill_radius, y - skill_radius, skill_radius * 2 , skill_radius * 2);
+                this.ctx.restore();
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y );
+                this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_b_time / 3 * Math.PI * 2 - Math.PI / 2, true);
+                this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
+                this.ctx.fill();
+
+            }
+            else
+            {
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, skill_radius, 0, Math.PI * 2, false);
+                this.ctx.clip();
+                this.ctx.drawImage(this.skill_b_img, x - skill_radius, y - skill_radius, skill_radius * 2 , skill_radius * 2);
+                this.ctx.restore();
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y );
+                this.ctx.arc(x, y , skill_radius, 0 - Math.PI / 2, -this.skill_b_coldtime / 8 * Math.PI * 2 - Math.PI / 2, true);
+                this.ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
+                this.ctx.fill();
+
+                if (!this.skill_b_coldtime )
+                {
+                    this.ctx.font = this.playground.height*0.05+"px '微软雅黑'";
+                    this.ctx.fillStyle="rgba(45,12,19,1)";
+                    this.ctx.textAlign = "center";
+                    this.ctx.fillText("B",x,y+d);
+                }
             }
         }
 
@@ -988,7 +1027,7 @@ class Player extends AcGameObject
             this.ctx.fillText("R",x,y+d);
         }
         //skill_d
-       
+
         let time = 0;
         if (this.work === "shenli")
             time = 8;

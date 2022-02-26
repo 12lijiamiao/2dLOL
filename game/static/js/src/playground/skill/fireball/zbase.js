@@ -81,7 +81,7 @@ class FireBall extends AcGameObject
     is_attack(player,tx ,ty , tr)
     {
         let distance = this.get_distance(tx,ty,this.x,this.y);
-        if(player.character === "ai" && distance < player.radius * 2 )
+        if(player.character === "ai" && distance < player.radius * 2 && Math.random() > 0.95)
         {
 
             player.cur_skill = "flash";

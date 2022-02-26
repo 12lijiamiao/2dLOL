@@ -134,11 +134,11 @@ class GreenArrow extends AcGameObject
     }
     update()
     {
-        if (this.out_of_map(this.now_x,this.now_y))
+        /*if (this.out_of_map(this.now_x,this.now_y))
         {
             this.destory();
             return false;
-        }
+        }*/
 
         if (this.player.character !== "enemy")
         {

@@ -208,7 +208,11 @@ class MultiplayerSocket{
             else if (events === "return_home")
             {
                 player.skill_b_time = 3;
-                player.vx = player.vy = player.move_length = 0
+                player.vx = player.vy = player.move_length = 0;
+            }
+            else if (events === "stay")
+            {
+                player.vx = player.vy = player.move_length = 0;
             }
         }
     }
