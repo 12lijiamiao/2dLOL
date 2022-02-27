@@ -67,8 +67,19 @@ class MinMap extends AcGameObject
             {
                 this.ctx.lineWidth = this.playground.height * 0.005;
                 this.ctx.strokeStyle = "rgba(115,87,92,1)";
-                let tx = x * scale - 0.5 * this.playground.width;
-                let ty = y * scale - 0.5 * this.playground.height;
+
+                let tx=0;
+                let ty=0;
+                if(this.playground.focus_mode)
+                {
+                    tx = x * scale - 0.5 * this.playground.width;
+                    ty = y * scale - 0.5 * this.playground.height;
+                }
+                else
+                {
+                    tx = this.playground.focus_point_x * scale - 0.5 * this.playground.width;
+                    ty = this.playground.focus_point_y * scale - 0.5 * this.playground.height;
+                }
                 if (tx < 0)
                 {
                     tx = 0;

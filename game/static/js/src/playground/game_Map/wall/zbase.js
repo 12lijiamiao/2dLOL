@@ -19,11 +19,21 @@ class Wall extends AcGameObject{
         if (!this.playground.foucs) return false ;
 
         let unit = this.playground.real_width / 20 ;
-        let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
-        let y = this.y - this.playground.plays[0].y + 0.5 ;
 
+        let x=0;
+        let y=0;
+        if(this.playground.focus_mode)
+        {
+            x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+            y = this.y - this.playground.plays[0].y + 0.5 ;
+        }
+        else
+        {
+            x = this.x - this.playground.focus_point_x + 0.5 * this.playground.width / this.playground.scale;
+            y = this.y - this.playground.focus_point_y + 0.5 ;
+        }
         let scale = this.playground.scale;
-        
+
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.lineWidth = this.playground.height * 0.005;

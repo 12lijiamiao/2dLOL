@@ -178,13 +178,22 @@ class Player extends AcGameObject
         let outer = this;
 
         this.playground.GameMap.$canvas.mousemove(function(e){
-                const rect = outer.ctx.canvas.getBoundingClientRect();
+            const rect = outer.ctx.canvas.getBoundingClientRect();
 
-                let tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
-                let ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
-
-                outer.mouse_x = tx;
-                outer.mouse_y = ty;
+            let tx=0;
+            let ty=0;
+            if(outer.playground.focus_mode)
+            {
+                tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
+                ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
+            }
+            else
+            {
+                tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.playground.focus_point_x - 0.5*outer.playground.width / outer.playground.scale;
+                ty = ( e.clientY - rect.top ) / outer.playground.scale  + outer.playground.focus_point_y - 0.5;
+            }
+            outer.mouse_x = tx;
+            outer.mouse_y = ty;
 
         });
         this.playground.GameMap.$canvas.keydown(function(e){
@@ -205,6 +214,14 @@ class Player extends AcGameObject
 
             if(outer.playground.state !== "fighting")
                 return true;
+
+            if(e.which === 89)
+            {
+                outer.playground.focus_mode = (outer.playground.focus_mode + 1) % 2;
+                outer.playground.focus_point_x = outer.x;
+                outer.playground.focus_point_y = outer.y;
+            }
+
             if(e.which === 81 && outer.fireball_coldtime < outer.esp)
             {
                 outer.cur_skill = "fireball";
@@ -274,14 +291,18 @@ class Player extends AcGameObject
         this.playground.GameMap.$canvas.mousedown(function(e){
             const rect = outer.ctx.canvas.getBoundingClientRect();
 
-            let tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
-            let ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
-            // if (outer.playground.state === "over" && e.which === 3)
-            //{
-
-            //  outer.playground.root.menu.show();
-            //  outer.playground.hide();
-            // }
+            let tx=0;
+            let ty=0;
+            if(outer.playground.focus_mode)
+            {
+                tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.x - 0.5*outer.playground.width / outer.playground.scale;
+                ty = ( e.clientY - rect.top ) / outer.playground.scale + outer.y - 0.5;
+            }
+            else
+            {
+                tx = ( e.clientX - rect.left ) / outer.playground.scale + outer.playground.focus_point_x - 0.5*outer.playground.width / outer.playground.scale;
+                ty = ( e.clientY - rect.top ) / outer.playground.scale  + outer.playground.focus_point_y - 0.5;
+            }
 
             if(outer.playground.state !== "fighting")
                 return true;
@@ -835,16 +856,36 @@ class Player extends AcGameObject
     {
         if(this.character === "me")
             this.render_skill();
-        let x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
-        let y = this.y - this.playground.plays[0].y + 0.5 ;
+        let x=0;
+        let y=0;
+        if(this.playground.focus_mode)
+        {
+            x = this.x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+            y = this.y - this.playground.plays[0].y + 0.5 ;
+        }
+        else
+        {
+            x = this.x - this.playground.focus_point_x + 0.5 * this.playground.width / this.playground.scale;
+            y = this.y - this.playground.focus_point_y + 0.5 ;
+        }
 
         let scale = this.playground.scale;
 
 
         if (this.skill_doing)
         {
-            let tx = this.mouse_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
-            let ty = this.mouse_y - this.playground.plays[0].y + 0.5 ;
+            let tx =0;
+            let ty =0;
+            if(this.playground.focus_mode)
+            {
+                tx = this.mouse_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+                ty = this.mouse_y - this.playground.plays[0].y + 0.5 ;
+            }
+            else 
+            {
+                tx = this.mouse_x - this.playground.focus_point_x + 0.5 * this.playground.width / this.playground.scale;
+                ty = this.mouse_y - this.playground.focus_point_y + 0.5 ;
+            }
 
             let angle = Math.atan2(ty - y , tx - x);
 

@@ -171,11 +171,27 @@ class GreenArrow extends AcGameObject
     {
         if (!this.playground.foucs) return false ;
 
-        let start_x = this.start_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
-        let start_y = this.start_y - this.playground.plays[0].y + 0.5 ;
+        let now_x=0;
+        let now_y=0;
+        let start_x = 0;
+        let start_y = 0;
+        if(this.playground.focus_mode)
+        {
+            start_x = this.start_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+            start_y = this.start_y - this.playground.plays[0].y + 0.5 ;
 
-        let now_x = this.now_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
-        let now_y = this.now_y - this.playground.plays[0].y + 0.5 ;
+            now_x = this.now_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
+            now_y = this.now_y - this.playground.plays[0].y + 0.5 ;
+
+        }
+        else
+        {
+            start_x = this.start_x - this.playground.focus_point_x + 0.5 * this.playground.width / this.playground.scale;
+            start_y = this.start_y - this.playground.focus_point_y + 0.5 ;
+
+            now_x = this.now_x - this.playground.focus_point_x + 0.5 * this.playground.width / this.playground.scale;
+            now_y = this.now_y - this.playground.focus_point_y + 0.5;
+        }
         let scale = this.playground.scale;
         this.ctx.beginPath();
         this.ctx.strokeStyle = this.color;

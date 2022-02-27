@@ -70,6 +70,10 @@ class AcgamePlayground{
         this.notice_board = new NoticeBoard(this);
         this.plays.push(new Player(this,this.real_width/2,this.real_height/2,0.15,0.05,"white","me",outer.root.settings.username,outer.root.settings.photo,null,this.work));
         this.foucs = this.plays[0];
+        this.focus_point_x=0;
+        this.focus_point_y=0;
+        this.focus_mode = 1;
+
         this.min_map = new MinMap(this,this.GameMap.ctx);
         this.scoreboard = new ScoreBoard(this);
         if(this.mode === "danren")
