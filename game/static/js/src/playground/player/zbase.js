@@ -846,13 +846,24 @@ class Player extends AcGameObject
             let tx = this.mouse_x - this.playground.plays[0].x + 0.5 * this.playground.width / this.playground.scale;
             let ty = this.mouse_y - this.playground.plays[0].y + 0.5 ;
 
+            let angle = Math.atan2(ty - y , tx - x);
+
+            let radius = this.playground.height * 0.05;
+            this.ctx.beginPath();
+            this.ctx.moveTo(tx * scale, ty *scale);
+            this.ctx.arc(tx * scale, ty * scale, radius, angle - Math.PI / 6 - Math.PI, angle + Math.PI / 6 - Math.PI, false);
+            this.ctx.fillStyle = "white";
+            this.ctx.fill();
+
             this.ctx.beginPath();
             this.ctx.lineWidth = this.playground.height *0.01;
             this.ctx.strokeStyle = "white";
-            this.ctx.moveTo(x,y);
-            this.ctx.lineTo(tx,ty);
-            this.ctx.closePath();
+            this.ctx.setLineDash([this.playground.height *0.04,this.playground.height *0.02]);
+            this.ctx.moveTo(x * scale,y * scale);
+            this.ctx.lineTo(tx * scale,ty * scale);
             this.ctx.stroke();
+            this.ctx.closePath();
+
         }
 
         if (this.death_time > this.esp)
