@@ -11,8 +11,8 @@ def get_random():
 
 
 def apply_code(request):
-    appid = "730"
-    redirect_uri = quote("https://app730.acapp.acwing.com.cn/settings/acwing/acapp/receive_code")
+    appid = "1697"
+    redirect_uri = quote("https://www.lijiamiao.top/settings/acwing/acapp/receive_code")
     scope = "userinfo"
     state = get_random()
     cache.set(state,True,7200)#自动生成暗号 2小时有效

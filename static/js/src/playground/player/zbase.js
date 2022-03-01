@@ -52,27 +52,27 @@ class Player extends AcGameObject
                 if(this.playground.mode === "duoren")
                 {
                     this.skill_b_img = new Image();
-                    this.skill_b_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/return_home.png";
+                    this.skill_b_img.src = "https://www.lijiamiao.top/static/image/playground/skill/return_home.png";
                 }
 
                 this.fireball_img = new Image();
-                this.fireball_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/fireball.png";
+                this.fireball_img.src = "https://www.lijiamiao.top/static/image/playground/skill/fireball.png";
                 this.flash_img = new Image();
-                this.flash_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/flash.png";
+                this.flash_img.src = "https://www.lijiamiao.top/static/image/playground/skill/flash.png";
                 if (this.work === "hutao")
                 {
                     this.skill_r_img = new Image();
-                    this.skill_r_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/all_fireball.png";
+                    this.skill_r_img.src = "https://www.lijiamiao.top/static/image/playground/skill/all_fireball.png";
                     this.skill_d_img = new Image();
-                    this.skill_d_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/cureball.jpg";
+                    this.skill_d_img.src = "https://www.lijiamiao.top/static/image/playground/skill/cureball.jpg";
                     this.skill_d_coldtime = 30;
                 }
                 else if (this.work === "shenli")
                 {
                     this.skill_r_img = new Image();
-                    this.skill_r_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/guangdun.jpeg";
+                    this.skill_r_img.src = "https://www.lijiamiao.top/static/image/playground/skill/guangdun.jpeg";
                     this.skill_d_img = new Image();
-                    this.skill_d_img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/skill/greenarrow.png";
+                    this.skill_d_img.src = "https://www.lijiamiao.top/static/image/playground/skill/greenarrow.png";
                     this.skill_d_coldtime = 8;
                 }
             }
@@ -80,7 +80,7 @@ class Player extends AcGameObject
         else
         {
             this.img=new Image();
-            this.img.src = "https://app730.acapp.acwing.com.cn/static/image/playground/renji.jpg";
+            this.img.src = "https://www.lijiamiao.top/static/image/playground/renji.jpg";
         }
 
 
@@ -308,7 +308,7 @@ class Player extends AcGameObject
                 return true;
 
             if (outer.playground.mode === "duoren")
-            {G
+            {
                 let unit = outer.playground.real_width / 20;
                 let room_x = outer.playground.GameMap.room_x;
                 let room_y = outer.playground.GameMap.room_y;
@@ -455,9 +455,10 @@ class Player extends AcGameObject
             }
             return false;
         }
+
+        this.speed *= this.f;
         if(events === "fireball")
         {
-            this.speed *= this.f;
             this.damage_speed = damage * 80;
 
             this.damage_vx = Math.cos(angle);
@@ -481,7 +482,7 @@ class Player extends AcGameObject
                 new FireWorks(this.playground,this,x,y,this.color,radius,angle,move_length,speed);
             }
             this.radius += damage;
-            this.speed *=1.1;
+            this.speed =0.15;
         }
 
     }
@@ -754,7 +755,7 @@ class Player extends AcGameObject
 
         if(this.character === "ai" && this.spend_time > 4 )
         {
-            if(Math.random() < 1 / 100.0)
+            if(Math.random() < 0.005)
             {
                 let player = this.playground.plays[Math.floor(Math.random() * this.playground.plays.length)];
                 let speed =  0.8;
@@ -769,7 +770,7 @@ class Player extends AcGameObject
                 if(this !== player)
                     this.shoot_fireball(tx,ty,0.8,"rgba(250,93,25,0.8)")
             }
-            else if (Math.random() > 0.999)
+            else if (Math.random() > 0.995)
             {
                 if(this.playground.plays.length > 1)
                 {

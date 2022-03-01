@@ -1,6 +1,11 @@
 class AcgameSettings{
     constructor(root)
     {
+        if(window.location.host === "https://app1697.acapp.acwing.com.cn")
+        {
+            window.location.replace("https://www.lijiamiao.top");
+        }
+
         this.root = root ;
         this.photo = "";
         this.platform = "web";
@@ -34,7 +39,7 @@ class AcgameSettings{
         </div>
         <br>
         <div class = "ac_game_settings_acwing">
-            <img width = "30" src="https://app730.acapp.acwing.com.cn/static/image/playground/playground.png">
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png">
             <br>
             <br>
             <div>
@@ -73,7 +78,7 @@ class AcgameSettings{
         </div>
         <br>
         <div class = "ac_game_settings_acwing">
-            <img width = "30" src="https://app730.acapp.acwing.com.cn/static/image/playground/playground.png">
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png">
             <br>
             <br>
             <div>
@@ -162,7 +167,7 @@ class AcgameSettings{
     web_acwing_login()
     {
         $.ajax({
-            url:"https://app730.acapp.acwing.com.cn/settings/acwing/web/apply_code/",
+            url:"https://www.lijiamiao.top/settings/acwing/web/apply_code/",
             type:"GET",
             success:function(resp){
                 if(resp.result === "success")
@@ -176,7 +181,7 @@ class AcgameSettings{
     {
         let outer=this;
         $.ajax({
-            url:"https://app730.acapp.acwing.com.cn/settings/login/",
+            url:"https://www.lijiamiao.top/settings/login/",
             type:"GET",
             data:{
                 username:outer.$login_username.val(),
@@ -197,7 +202,7 @@ class AcgameSettings{
     {
         let outer=this;
         $.ajax({
-            url:"https://app730.acapp.acwing.com.cn/settings/register/",
+            url:"https://www.lijiamiao.top/settings/register/",
             type:"GET",
             data:{
                 username:outer.$register_username.val(),
@@ -220,7 +225,7 @@ class AcgameSettings{
     {
         let outer = this;
         $.ajax({
-            url:"https://app730.acapp.acwing.com.cn/settings/logout/",
+            url:"https://www.lijiamiao.top/settings/logout/",
             type:"GET",
             success:function(resp){
                 if(resp.result === "success")
@@ -245,7 +250,7 @@ class AcgameSettings{
     {
         let outer = this;
         $.ajax({
-            url :"https://app730.acapp.acwing.com.cn/settings/getinfo/",
+            url :"https://www.lijiamiao.top/settings/getinfo/",
             type:"GET",
             data:{
                 platform:outer.platform,
@@ -284,7 +289,7 @@ class AcgameSettings{
         let outer = this;
 
         $.ajax({
-            url:"https://app730.acapp.acwing.com.cn/settings/acwing/acapp/apply_code",
+            url:"https://www.lijiamiao.top/settings/acwing/acapp/apply_code",
             type:"GET",
             success:function(resp)
             {
