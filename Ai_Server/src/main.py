@@ -62,7 +62,7 @@ class Pool:
                     'event': 'create_boss',
                     'uuid': self.rooms[i].boss_uuid,
                     'username': "boss",
-                    'photo':"https://app730.acapp.acwing.com.cn/static/image/playground/renji.jpg",
+                    'photo':"https://www.lijiamiao.top/static/image/playground/renji.jpg",
                     'id':-2,
                     'state':randint(0,1),
                 }

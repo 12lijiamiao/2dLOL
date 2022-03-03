@@ -39,11 +39,13 @@ class AcgameSettings{
         </div>
         <br>
         <div class = "ac_game_settings_acwing">
-            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png">
-            <br>
-            <br>
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png" class= "acwing_login">
             <div>
-                Acwing 一键登录
+                AcWing 一键登录
+            </div>
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/qq.png" class = "qq_login">
+            <div>
+                QQ 一键登录
             </div>
         </div>
      </div>
@@ -78,11 +80,13 @@ class AcgameSettings{
         </div>
         <br>
         <div class = "ac_game_settings_acwing">
-            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png">
-            <br>
-            <br>
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/playground.png" class= "acwing_login">
             <div>
-                Acwing 一键登录
+                AcWing 一键登录
+            </div>
+            <img width = "30" src="https://www.lijiamiao.top/static/image/playground/qq.png" class = "qq_login">
+            <div>
+                QQ 一键登录
             </div>
         </div>
     </div>
@@ -109,7 +113,8 @@ class AcgameSettings{
 
         this.$register.hide();
 
-        this.$acwing_login = this.$settings.find(".ac_game_settings_acwing img");
+        this.$acwing_login = this.$settings.find(".acwing_login");
+        this.$qq_login = this.$settings.find(".qq_login");
 
         this.root.$ac_game.append(this.$settings);
 
@@ -138,6 +143,10 @@ class AcgameSettings{
         this.$acwing_login.click(function()
             {
                 outer.web_acwing_login();
+            });
+        this.$qq_login.click(function()
+            {
+                outer.web_qq_login();
             });
     }
 
@@ -173,6 +182,18 @@ class AcgameSettings{
                 if(resp.result === "success")
                 {
                     window.location.replace(resp.redirect_acwing_url);
+                }
+            }
+        });
+    }
+    web_qq_login()
+    {
+        $.ajax({
+            url : "https://www.lijiamiao.top/settings/qq/apply_code/",
+            type : "GET",
+            success : function(resp) {
+                if(resp.result === "success") {
+                    window.location.replace(resp.apply_code_url);
                 }
             }
         });

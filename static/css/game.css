@@ -205,26 +205,36 @@
 }
 
 .ac_game_settings_acwing{
-    display:block;
-    height:7vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 7vh;
 }
 
-.ac_game_settings_acwing > img{
-    position:relative;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
+.acwing_login{
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     background-color : rgba(0,0,0,0.7);
-    border-radius:5px;
     cursor:pointer;
 
 }
+.qq_login{
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color : rgba(0,0,0,0.7);
+    cursor:pointer;
 
+}
 .ac_game_settings_acwing > div{
-    color:white;
-    font-size:1.5vh;
-    text-align:center;
-    display:block;
+    color: white;
+    font-size: 1.5vh;
+    text-align: center;
+    display: block;
 }
 
 .ac_game_settings_error_message{
@@ -278,7 +288,7 @@
 }
 .ac_game_playground > canvas{
     position: relative;
-     top:50%;
+    top:50%;
     left:50%;
     transform:translate(-50%,-50%);
 }
